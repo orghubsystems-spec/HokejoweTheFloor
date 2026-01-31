@@ -17,6 +17,30 @@
       color:var(--text);
       min-height:100vh;
     }
+    /* ====== FIXED 1920x1080 VIEWPORT ====== */
+body{
+  overflow: hidden;
+}
+
+#viewport{
+  width: 1920px;
+  height: 1080px;
+  background: inherit;
+  transform-origin: top left;
+}
+
+/* skalowanie do rozmiaru okna */
+@media (max-width: 1920px), (max-height: 1080px){
+  #viewport{
+    transform: scale(
+      min(
+        calc(100vw / 1920),
+        calc(100vh / 1080)
+      )
+    );
+  }
+}
+
     .screen{ display:none; min-height:100vh; padding:24px; }
     .screen.active{ display:flex; align-items:center; justify-content:center; }
 
@@ -161,6 +185,8 @@
   </style>
 </head>
 <body>
+  
+<div id="viewport">
 
   <!-- MENU (operator setup) -->
   <div id="menu" class="screen active">
@@ -529,5 +555,7 @@
   init().catch(err => console.error(err));
 </script>
 
-</body>
+    </body>
+  </div>
+
 </html>
