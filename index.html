@@ -20,51 +20,63 @@
     .screen{ display:none; min-height:100vh; padding:24px; }
     .screen.active{ display:flex; align-items:center; justify-content:center; }
 
-    /* MENU */
+    /* MENU (operator setup) */
     .card{
       width:min(1100px, 100%);
       background: linear-gradient(180deg, #ffffff10, #ffffff08);
       border:1px solid #ffffff18;
       border-radius:24px;
-      padding:24px;
+      padding:18px;
       box-shadow:0 12px 40px #00000055;
     }
-    h1{ margin:0 0 12px; font-size:28px; }
-    .hint{ color:var(--muted); font-size:14px; margin-bottom:14px; }
-    .topRow{ display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:14px; }
-    .field{
-      flex:1 1 220px;
+    .topRow{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+    .inputBox{
+      flex:1 1 240px;
       background:#00000025;
       border:1px solid #ffffff18;
-      border-radius:16px;
-      padding:12px;
+      border-radius:18px;
+      padding:10px;
     }
-    .field label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
-    .field input{
+    .inputBox input{
       width:100%;
-      padding:10px 12px;
-      border-radius:12px;
+      padding:12px 14px;
+      border-radius:14px;
       border:1px solid #ffffff22;
       background:#00000030;
       color:#fff;
       outline:none;
-      font-size:16px;
-      font-weight:800;
+      font-size:18px;
+      font-weight:900;
       letter-spacing:.3px;
     }
-    .grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; }
+    .grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; }
     .tile{
-      padding:18px; border-radius:18px; cursor:pointer; user-select:none;
+      padding:14px;
+      border-radius:18px;
+      cursor:pointer;
+      user-select:none;
       background: linear-gradient(180deg, #ffffff12, #ffffff08);
       border:1px solid #ffffff1a;
       transition: transform .08s ease, border-color .08s ease, background .08s ease;
+      min-height:78px;
+      display:flex;
+      align-items:center;
     }
     .tile:hover{ transform: translateY(-2px); border-color:#ffffff30; background: linear-gradient(180deg, #ffffff18, #ffffff0c); }
-    .tile .name{ font-size:20px; font-weight:900; }
-    .tile .sub{ margin-top:6px; color:var(--muted); font-size:13px; }
-    .num{ float:right; opacity:.7; font-weight:800; }
+    .tile input{
+      width:100%;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid #ffffff22;
+      background:#00000020;
+      color:#fff;
+      outline:none;
+      font-size:18px;
+      font-weight:1000;
+      letter-spacing:.3px;
+    }
 
-    /* READY (nazwa kategorii full screen) */
+    /* READY (full screen title only) */
     .bigTitle{
       font-size:min(96px, 9vw);
       font-weight:1000;
@@ -72,22 +84,6 @@
       text-align:center;
       text-shadow:0 0 28px #00000080;
       padding:24px;
-    }
-    .readyHint{
-      margin-top:18px;
-      text-align:center;
-      color:var(--muted);
-      font-size:16px;
-      opacity:.85;
-    }
-    kbd{
-      padding:4px 10px;
-      border-radius:12px;
-      border:1px solid #ffffff25;
-      background:#00000035;
-      color:#fff;
-      font-size:14px;
-      font-weight:800;
     }
 
     /* COUNTDOWN */
@@ -101,7 +97,7 @@
     .go{ animation: pop .25s ease-out; }
     @keyframes pop{ from{ transform:scale(.92); opacity:.6 } to{ transform:scale(1); opacity:1 } }
 
-    /* ROUND (tylko zdjęcie + czasy) */
+    /* ROUND (only photo + times) */
     .stage{
       width:min(1100px, 100%);
       display:flex;
@@ -148,7 +144,7 @@
       50%{ transform: translateY(-2px); }
     }
 
-    /* WINNER */
+    /* WINNER (no extra hints) */
     .winnerWrap{ text-align:center; }
     .winnerTitle{
       font-size:min(120px, 12vw);
@@ -162,30 +158,19 @@
       font-weight:1000;
       text-shadow:0 0 28px #00000080;
     }
-    .winnerHint{
-      margin-top:18px;
-      color:var(--muted);
-      font-size:16px;
-      opacity:.85;
-    }
   </style>
 </head>
 <body>
 
-  <!-- MENU -->
+  <!-- MENU (operator setup) -->
   <div id="menu" class="screen active">
     <div class="card">
-      <h1>Ustaw graczy i wybierz kategorię</h1>
-      <div class="hint">Imiona zapisują się lokalnie. Wybierz kategorię klikając lub klawiszami 1–9.</div>
-
       <div class="topRow">
-        <div class="field">
-          <label>Player A</label>
-          <input id="nameA" type="text" placeholder="np. Jakub" />
+        <div class="inputBox">
+          <input id="nameA" type="text" placeholder="Player A" />
         </div>
-        <div class="field">
-          <label>Player B</label>
-          <input id="nameB" type="text" placeholder="np. Tomek" />
+        <div class="inputBox">
+          <input id="nameB" type="text" placeholder="Player B" />
         </div>
       </div>
 
@@ -197,7 +182,6 @@
   <div id="ready" class="screen">
     <div>
       <div id="readyTitle" class="bigTitle">Kategoria</div>
-      <div class="readyHint">Gdy gracz powie „gotowy” → Operator naciska <kbd>Enter</kbd></div>
     </div>
   </div>
 
@@ -226,7 +210,6 @@
     <div class="winnerWrap">
       <div class="winnerTitle">WINNER!!!</div>
       <div id="winnerName" class="winnerName">—</div>
-      <div class="winnerHint">Menu: <kbd>M</kbd> • Restart rundy: <kbd>R</kbd></div>
     </div>
   </div>
 
@@ -257,47 +240,30 @@
 
   // ====== CONFIG ======
   const ROUND_SECONDS = 60;
-  const STEP_MS = 1000; // 1 sekunda na: 3,2,1,START
+  const STEP_MS = 1000;
 
-  // ====== NAMES (localStorage) ======
+  // ====== STORAGE KEYS ======
   const LS_A = "floor_name_a";
   const LS_B = "floor_name_b";
+  const LS_CAT = "floor_cat_labels"; // JSON array 9 elementów
 
-  function getNameA(){
-    return (nameAInput.value || "").trim() || "Player A";
-  }
-  function getNameB(){
-    return (nameBInput.value || "").trim() || "Player B";
-  }
-  function loadNames(){
-    nameAInput.value = localStorage.getItem(LS_A) || "";
-    nameBInput.value = localStorage.getItem(LS_B) || "";
-  }
-  function saveNames(){
-    localStorage.setItem(LS_A, (nameAInput.value || "").trim());
-    localStorage.setItem(LS_B, (nameBInput.value || "").trim());
-  }
-  nameAInput.addEventListener("input", saveNames);
-  nameBInput.addEventListener("input", saveNames);
-
-  // ====== STATE: TIMERY ======
+  // ====== STATE: TIMERS ======
   let timeA = ROUND_SECONDS;
   let timeB = ROUND_SECONDS;
   let active = "A";
   let running = false;
   let tick = null;
 
-  // ====== STATE: KATEGORIE/ZDJĘCIA ======
-  let categories = null;
-  let categoryNames = [];
-  let currentCategory = null;
+  // ====== STATE: categories/images ======
+  let categories = null;        // JSON z data/categories.json (źródło plików)
+  let categoryKeys = [];        // klucze z categories.json (pierwsze 9)
+  let catLabels = [];           // etykiety wyświetlane (edytowane przez operatora)
+  let currentCatIndex = null;   // 0..8
+  let startArmed = false;
 
-  // dwie talie dla A i B
+  // decks
   let deckA = [], deckB = [];
   let idxA = 0, idxB = 0;
-
-  // żeby operator nie odpalił startu 10 razy
-  let startArmed = false;
 
   function fmt(s){
     s = Math.max(0, s);
@@ -306,7 +272,7 @@
     return `${mm}:${ss}`;
   }
 
-  function render(){
+  function renderTimers(){
     elA.textContent = fmt(timeA);
     elB.textContent = fmt(timeB);
     elA.classList.toggle("active", active === "A");
@@ -338,14 +304,11 @@
   }
 
   function announceWinner(winner){
-    // winner = "A" lub "B"
     running = false;
     stopTick();
-
     const winnerName = (winner === "A") ? getNameA() : getNameB();
     winnerNameEl.textContent = winnerName;
     show($winner);
-
     document.body.animate(
       [{filter:'brightness(1)'},{filter:'brightness(1.8)'},{filter:'brightness(1)'}],
       {duration:450, iterations:3}
@@ -364,29 +327,26 @@
         timeB = Math.max(0, timeB - 1);
         if (timeB === 0) { announceWinner("A"); return; }
       }
-      render();
+      renderTimers();
     }, 1000);
   }
 
-  // POPRAWNA (P) -> zamiana gracza + nowe zdjęcie dla wchodzącego
-  function correct(){
+  function correct(){ // P
     if (!$round.classList.contains("active")) return;
     if (!running) return;
     active = (active === "A") ? "B" : "A";
     nextImageFor(active);
-    render();
+    renderTimers();
   }
 
-  // PAS (Q) -> -3s aktywnego + nowe zdjęcie, bez zmiany gracza
-  function pass(){
+  function pass(){ // Q
     if (!$round.classList.contains("active")) return;
     if (!running) return;
     if (active === "A") timeA = Math.max(0, timeA - 3);
     else timeB = Math.max(0, timeB - 3);
     nextImageFor(active);
-    render();
+    renderTimers();
 
-    // jeśli kara zbiła do zera, też kończymy
     if (timeA === 0) announceWinner("B");
     if (timeB === 0) announceWinner("A");
   }
@@ -397,32 +357,70 @@
     timeA = ROUND_SECONDS;
     timeB = ROUND_SECONDS;
     active = "A";
-    render();
+    renderTimers();
   }
 
-  // ====== MENU / KATEGORIE ======
+  // ====== NAMES ======
+  function getNameA(){ return (nameAInput.value || "").trim() || "Player A"; }
+  function getNameB(){ return (nameBInput.value || "").trim() || "Player B"; }
+  function loadNames(){
+    nameAInput.value = localStorage.getItem(LS_A) || "";
+    nameBInput.value = localStorage.getItem(LS_B) || "";
+  }
+  function saveNames(){
+    localStorage.setItem(LS_A, (nameAInput.value || "").trim());
+    localStorage.setItem(LS_B, (nameBInput.value || "").trim());
+  }
+  nameAInput.addEventListener("input", saveNames);
+  nameBInput.addEventListener("input", saveNames);
+
+  // ====== CATEGORY LABELS (editable display only) ======
+  function loadCatLabels(){
+    try{
+      const raw = localStorage.getItem(LS_CAT);
+      const arr = raw ? JSON.parse(raw) : null;
+      if (Array.isArray(arr) && arr.length === 9) return arr;
+    }catch(e){}
+    // default: użyj kluczy (Kategoria1..)
+    return categoryKeys.map((k, i) => `Kategoria ${i+1}`);
+  }
+
+  function saveCatLabels(){
+    localStorage.setItem(LS_CAT, JSON.stringify(catLabels));
+  }
+
   function renderMenu(){
     grid.innerHTML = "";
-    categoryNames.forEach((name, i) => {
-      const num = i + 1;
-      const d = document.createElement("div");
-      d.className = "tile";
-      d.innerHTML = `<div class="name">${name}<span class="num">${num}</span></div>
-                     <div class="sub">${categories[name].dir} • ${categories[name].count} zdjęć</div>`;
-      d.onclick = () => selectCategory(num);
-      grid.appendChild(d);
-    });
+    for (let i = 0; i < 9; i++){
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      tile.onclick = () => selectCategory(i);
+
+      const inp = document.createElement("input");
+      inp.value = catLabels[i] || "";
+      inp.placeholder = `Kategoria ${i+1}`;
+      inp.addEventListener("click", (e) => e.stopPropagation());
+      inp.addEventListener("keydown", (e) => e.stopPropagation());
+      inp.addEventListener("input", () => {
+        catLabels[i] = inp.value;
+        saveCatLabels();
+      });
+
+      tile.appendChild(inp);
+      grid.appendChild(tile);
+    }
   }
 
-  async function buildDecksForCategory(name){
-    const cat = categories[name];
+  async function buildDecksForIndex(i){
+    const key = categoryKeys[i];
+    const cat = categories[key];
+
     const urls = [];
-    for (let i = 1; i <= cat.count; i++){
-      const n = String(i).padStart(2, "0");
-      urls.push(`${cat.dir}/${n}.${cat.ext}`);
+    for (let n = 1; n <= cat.count; n++){
+      const nn = String(n).padStart(2, "0");
+      urls.push(`${cat.dir}/${nn}.${cat.ext}`);
     }
 
-    // preload (ignorujemy brakujące)
     await Promise.all(urls.map(url => new Promise(resolve => {
       const img = new Image();
       img.onload = () => resolve(true);
@@ -435,33 +433,25 @@
     idxA = 0; idxB = 0;
   }
 
-  // Po wyborze kategorii: kafelki znikają, pokazuje się nazwa na full ekranie.
-  async function selectCategory(n){
+  async function selectCategory(i){
     saveNames();
-    const name = categoryNames[n - 1];
-    if (!name) return;
+    currentCatIndex = i;
+    await buildDecksForIndex(i);
 
-    currentCategory = name;
-    await buildDecksForCategory(currentCategory);
-
-    // przygotuj rundę, ale NIC nie startuj
     resetRound();
     startArmed = true;
 
-    // pokaż ekran nazwy kategorii
-    readyTitle.textContent = currentCategory;
+    readyTitle.textContent = (catLabels[i] || "").trim() || `Kategoria ${i+1}`;
     show($ready);
   }
 
   function wait(ms){ return new Promise(res => setTimeout(res, ms)); }
 
-  // Enter na ekranie READY uruchamia sekwencję: 3..2..1..START -> pokaz rundę -> pierwsze zdjęcie -> start zegara A
   async function startSequence(){
     if (!startArmed) return;
     startArmed = false;
 
     show($countdown);
-
     const steps = ["3","2","1","START"];
     for (const s of steps){
       countNum.textContent = s;
@@ -471,53 +461,48 @@
       await wait(STEP_MS - 110);
     }
 
-    // start rundy
     active = "A";
     nextImageFor("A");
     show($round);
 
     running = true;
     startTick();
-    render();
+    renderTimers();
   }
 
   // ====== KEYBOARD ======
   window.addEventListener("keydown", (e) => {
     const k = (e.key || "").toLowerCase();
 
-    // MENU: 1..9 wybór kategorii
+    // MENU: 1..9 wybór
     if ($menu.classList.contains("active")) {
-      if (k >= "1" && k <= "9") { selectCategory(parseInt(k,10)); return; }
+      if (k >= "1" && k <= "9") { selectCategory(parseInt(k,10) - 1); return; }
     }
 
-    // READY: Enter startuje sekwencję
+    // READY: Enter start
     if ($ready.classList.contains("active")) {
       if (k === "enter") { e.preventDefault(); startSequence(); return; }
-      if (k === "m") { show($menu); return; }
     }
 
-    // ROUND: Enter/Spacja ignorujemy (brak pauzy)
+    // ROUND: Enter/Space ignoruj (brak pauzy)
     if ($round.classList.contains("active")) {
       if (k === "enter" || k === " ") { e.preventDefault(); return; }
-      if (k === "p") { correct(); return; } // poprawna -> zamiana
-      if (k === "q") { pass(); return; }    // pas -> -3s + nowe zdjęcie
-      if (k === "m") { show($menu); return; }
-      if (k === "r") { resetRound(); nextImageFor("A"); running = true; startTick(); return; }
+      if (k === "p") { correct(); return; }
+      if (k === "q") { pass(); return; }
     }
 
-    // WINNER: M menu, R restart tej samej kategorii
+    // WINNER: M do menu, R restart tej samej kategorii
     if ($winner.classList.contains("active")) {
       if (k === "m") { show($menu); return; }
       if (k === "r") {
-        // restart rundy w tej samej kategorii (jeśli była wybrana)
-        if (currentCategory) {
+        if (currentCatIndex !== null) {
           resetRound();
           active = "A";
           nextImageFor("A");
           show($round);
           running = true;
           startTick();
-          render();
+          renderTimers();
         } else {
           show($menu);
         }
@@ -529,12 +514,16 @@
   // ====== INIT ======
   async function init(){
     loadNames();
+
     const res = await fetch("data/categories.json");
     categories = await res.json();
-    categoryNames = Object.keys(categories).slice(0, 9);
+    categoryKeys = Object.keys(categories).slice(0, 9);
+
+    catLabels = loadCatLabels();
     renderMenu();
+
     show($menu);
-    render();
+    renderTimers();
   }
 
   init().catch(err => console.error(err));
