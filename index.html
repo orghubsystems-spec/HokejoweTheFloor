@@ -43,9 +43,40 @@
     .tile .sub{ margin-top:6px; color:var(--muted); font-size:13px; }
     .num{ float:right; opacity:.7; font-weight:800; }
 
+    /* READY (nazwa kategorii full screen) */
+    .bigTitle{
+      font-size:min(96px, 9vw);
+      font-weight:1000;
+      letter-spacing:1px;
+      text-align:center;
+      text-shadow:0 0 28px #00000080;
+      padding:24px;
+    }
+    .readyHint{
+      margin-top:18px;
+      text-align:center;
+      color:var(--muted);
+      font-size:16px;
+      opacity:.85;
+    }
+    kbd{
+      padding:4px 10px;
+      border-radius:12px;
+      border:1px solid #ffffff25;
+      background:#00000035;
+      color:#fff;
+      font-size:14px;
+      font-weight:800;
+    }
+
     /* COUNTDOWN */
     .countWrap{ text-align:center; }
-    .count{ font-size:120px; font-weight:1000; letter-spacing:2px; text-shadow:0 0 28px #00000080; }
+    .count{
+      font-size:min(140px, 14vw);
+      font-weight:1000;
+      letter-spacing:2px;
+      text-shadow:0 0 28px #00000080;
+    }
     .go{ animation: pop .35s ease-out; }
     @keyframes pop{ from{ transform:scale(.92); opacity:.6 } to{ transform:scale(1); opacity:1 } }
 
@@ -103,8 +134,16 @@
   <div id="menu" class="screen active">
     <div class="card">
       <h1>Wybierz kategorię</h1>
-      <div class="hint">Kliknij kafelek lub naciśnij klawisz 1–9. Potem 3…2…1…GO i start rundy.</div>
+      <div class="hint">Kliknij kafelek lub naciśnij klawisz 1–9.</div>
       <div id="grid" class="grid"></div>
+    </div>
+  </div>
+
+  <!-- READY -->
+  <div id="ready" class="screen">
+    <div>
+      <div id="readyTitle" class="bigTitle">Kategoria</div>
+      <div class="readyHint">Gdy gracz powie „gotowy” → Operator naciska <kbd>Enter</kbd></div>
     </div>
   </div>
 
@@ -131,11 +170,12 @@
 <script>
   // ====== SCREENS ======
   const $menu = document.getElementById("menu");
+  const $ready = document.getElementById("ready");
   const $countdown = document.getElementById("countdown");
   const $round = document.getElementById("round");
 
   function show(el){
-    [$menu, $countdown, $round].forEach(x => x.classList.remove("active"));
+    [$menu, $ready, $countdown, $round].forEach(x => x.classList.remove("active"));
     el.classList.add("active");
   }
 
@@ -145,9 +185,11 @@
   const elB = document.getElementById("timeB");
   const grid = document.getElementById("grid");
   const countNum = document.getElementById("countNum");
+  const readyTitle = document.getElementById("readyTitle");
 
   // ====== CONFIG ======
   const ROUND_SECONDS = 60;
+  const STEP_MS = 2000; // 2 sekundy na: 3,2,1,START
 
   // ====== STATE: TIMERY ======
   let timeA = ROUND_SECONDS;
@@ -157,13 +199,16 @@
   let tick = null;
 
   // ====== STATE: KATEGORIE/ZDJĘCIA ======
-  let categories = null;       // JSON
-  let categoryNames = [];      // kolejność 1..9
+  let categories = null;
+  let categoryNames = [];
   let currentCategory = null;
 
   // dwie talie dla A i B
   let deckA = [], deckB = [];
   let idxA = 0, idxB = 0;
+
+  // żeby operator nie odpalił startu 10 razy
+  let startArmed = false;
 
   function fmt(s){
     s = Math.max(0, s);
@@ -221,6 +266,7 @@
     }, 1000);
   }
 
+  // W rundzie Enter/Spacja = pauza/wznów (ale pierwsze uruchomienie robi startSequence)
   function toggleRun(){
     running = !running;
     if (running) startTick();
@@ -229,6 +275,7 @@
 
   // POPRAWNA (P) -> zamiana gracza + nowe zdjęcie dla wchodzącego
   function correct(){
+    if (!$round.classList.contains("active")) return;
     active = (active === "A") ? "B" : "A";
     nextImageFor(active);
     render();
@@ -236,6 +283,7 @@
 
   // PAS (Q) -> -3s aktywnego + nowe zdjęcie, bez zmiany gracza
   function pass(){
+    if (!$round.classList.contains("active")) return;
     if (active === "A") timeA = Math.max(0, timeA - 3);
     else timeB = Math.max(0, timeB - 3);
     nextImageFor(active);
@@ -249,7 +297,6 @@
     timeB = ROUND_SECONDS;
     active = "A";
     render();
-    nextImageFor(active);
   }
 
   function flash(){
@@ -294,22 +341,7 @@
     idxA = 0; idxB = 0;
   }
 
-  async function runCountdown(){
-    show($countdown);
-    countNum.textContent = "3";
-    await wait(650);
-    countNum.textContent = "2";
-    await wait(650);
-    countNum.textContent = "1";
-    await wait(650);
-    countNum.textContent = "GO";
-    countNum.classList.add("go");
-    await wait(400);
-    countNum.classList.remove("go");
-  }
-
-  function wait(ms){ return new Promise(res => setTimeout(res, ms)); }
-
+  // Po wyborze kategorii: kafelki znikają, pokazuje się nazwa na full ekranie.
   async function selectCategory(n){
     const name = categoryNames[n - 1];
     if (!name) return;
@@ -317,9 +349,42 @@
     currentCategory = name;
     await buildDecksForCategory(currentCategory);
 
+    // przygotuj rundę, ale NIC nie startuj
     resetRound();
-    await runCountdown();
+    startArmed = true;
+
+    // pokaż ekran nazwy kategorii
+    readyTitle.textContent = currentCategory;
+    show($ready);
+  }
+
+  function wait(ms){ return new Promise(res => setTimeout(res, ms)); }
+
+  // Enter na ekranie READY uruchamia sekwencję: 3..2..1..START (po 2 sek) -> pokaz rundę -> pierwsze zdjęcie -> start zegara A
+  async function startSequence(){
+    if (!startArmed) return;
+    startArmed = false;
+
+    // odliczanie
+    show($countdown);
+
+    const steps = ["3","2","1","START"];
+    for (const s of steps){
+      countNum.textContent = s;
+      countNum.classList.add("go");
+      await wait(120);
+      countNum.classList.remove("go");
+      await wait(STEP_MS - 120);
+    }
+
+    // start rundy: pierwsze zdjęcie + start czasu A
+    active = "A";
+    nextImageFor("A");
     show($round);
+
+    running = true;
+    startTick();
+    render();
   }
 
   // ====== KEYBOARD ======
@@ -331,12 +396,18 @@
       if (k >= "1" && k <= "9") { selectCategory(parseInt(k,10)); return; }
     }
 
-    // ROUND: Enter/Spacja start/pauza
+    // READY: Enter startuje sekwencję (gracz mówi "gotowy")
+    if ($ready.classList.contains("active")) {
+      if (k === "enter") { e.preventDefault(); startSequence(); return; }
+      if (k === "m") { show($menu); return; }
+    }
+
+    // ROUND: Enter/Spacja pauza/wznów, P poprawna, Q pas
     if ($round.classList.contains("active")) {
       if (k === "enter" || k === " ") { e.preventDefault(); toggleRun(); return; }
-      if (k === "p") { correct(); return; } // poprawna
-      if (k === "q") { pass(); return; }    // pas
-      if (k === "r") { resetRound(); return; }
+      if (k === "p") { correct(); return; }
+      if (k === "q") { pass(); return; }
+      if (k === "r") { resetRound(); nextImageFor("A"); return; }
       if (k === "m") { show($menu); return; }
     }
   }, {passive:false});
@@ -345,7 +416,7 @@
   async function init(){
     const res = await fetch("data/categories.json");
     categories = await res.json();
-    categoryNames = Object.keys(categories).slice(0, 9); // bierzemy pierwsze 9
+    categoryNames = Object.keys(categories).slice(0, 9); // pierwsze 9
     renderMenu();
     show($menu);
     render();
