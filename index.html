@@ -402,14 +402,16 @@
       if (k === "m") { show($menu); return; }
     }
 
-    // ROUND: Enter/Spacja pauza/wznów, P poprawna, Q pas
     if ($round.classList.contains("active")) {
-      if (k === "enter" || k === " ") { e.preventDefault(); toggleRun(); return; }
-      if (k === "p") { correct(); return; }
-      if (k === "q") { pass(); return; }
+      // brak pauzy – Enter/Spacja ignorujemy
+      if (k === "enter" || k === " ") { e.preventDefault(); return; }
+
+      if (k === "p") { correct(); return; } // poprawna -> zamiana
+      if (k === "q") { pass(); return; }    // pas -> -3s + nowe zdjęcie
       if (k === "r") { resetRound(); nextImageFor("A"); return; }
       if (k === "m") { show($menu); return; }
     }
+
   }, {passive:false});
 
   // ====== INIT ======
