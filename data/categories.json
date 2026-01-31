@@ -1,0 +1,11 @@
+{
+  "Kategoria1": { "dir": "assets/k1", "count": 60, "ext": "webp" },
+  "Kategoria2": { "dir": "assets/k2", "count": 60, "ext": "webp" },
+  "Kategoria3": { "dir": "assets/k3", "count": 60, "ext": "webp" },
+  "Kategoria4": { "dir": "assets/k4", "count": 60, "ext": "webp" },
+  "Kategoria5": { "dir": "assets/k5", "count": 60, "ext": "webp" },
+  "Kategoria6": { "dir": "assets/k6", "count": 60, "ext": "webp" },
+  "Kategoria7": { "dir": "assets/k7", "count": 60, "ext": "webp" },
+  "Kategoria8": { "dir": "assets/k8", "count": 60, "ext": "webp" },
+  "Kategoria9": { "dir": "assets/k9", "count": 60, "ext": "webp" }
+}
