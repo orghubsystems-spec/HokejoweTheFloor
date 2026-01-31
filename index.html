@@ -3,10 +3,67 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>The Floor – Operator</title>
+  <title>The Floor – preload test</title>
+  <style>
+    body {
+      background:#0b1b2b;
+      color:#fff;
+      font-family:system-ui, Arial;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      text-align:center;
+    }
+    .ok { color:#7CFC98; }
+    .err { color:#ff6b6b; }
+  </style>
 </head>
 <body>
-  <h1>Repo działa ✅</h1>
-  <p>Tu będzie gra.</p>
+
+<div id="app">
+  <h1>Preload test</h1>
+  <p id="status">Ładowanie…</p>
+</div>
+
+<script>
+async function start() {
+  const status = document.getElementById("status");
+
+  try {
+    const res = await fetch("data/categories.json");
+    const categories = await res.json();
+
+    const cat = categories["Kategoria1"];
+    if (!cat) throw "Brak Kategoria1 w JSON";
+
+    const urls = [];
+    for (let i = 1; i <= cat.count; i++) {
+      const n = String(i).padStart(2, "0");
+      urls.push(`${cat.dir}/${n}.${cat.ext}`);
+    }
+
+    let loaded = 0;
+
+    await Promise.all(urls.map(url => new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        loaded++;
+        status.textContent = `Załadowano ${loaded}/${urls.length} obrazów`;
+        resolve();
+      };
+      img.onerror = () => resolve(); // ignorujemy brakujące
+      img.src = url;
+    })));
+
+    status.innerHTML = `<span class="ok">PRELOAD OK</span><br>Załadowano ${loaded} obrazów`;
+  } catch (e) {
+    status.innerHTML = `<span class="err">BŁĄD</span><br>${e}`;
+  }
+}
+
+start();
+</script>
+
 </body>
 </html>
