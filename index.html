@@ -93,21 +93,176 @@
   </div>
 
 <script>
-  // ====== NA RAZIE: demo danych (jedno zdjęcie z k1) ======
+  // ====== UI refs ======
   const photo = document.getElementById("photo");
-  photo.src = "assets/k1/01.jpg"; // jeśli masz inne nazwy, to powiedz – zmienimy
+  const elA = document.getElementById("timeA");
+  const elB = document.getElementById("timeB");
 
-  // 60 sekund na gracza (docelowo będzie odliczanie i sterowanie klawiszami)
+  // ====== TIMERY ======
   let timeA = 60;
   let timeB = 60;
 
+  let active = "A";      // "A" albo "B"
+  let running = false;   // czy odliczamy
+  let tick = null;
+
+  // ====== ZDJĘCIA (na razie: Kategoria1) ======
+  let deckA = [];   // talia A
+  let deckB = [];   // talia B
+  let idxA = 0;
+  let idxB = 0;
+
   function fmt(s){
+    s = Math.max(0, s);
     const mm = String(Math.floor(s/60)).padStart(2,"0");
     const ss = String(s%60).padStart(2,"0");
     return `${mm}:${ss}`;
   }
-  document.getElementById("timeA").textContent = fmt(timeA);
-  document.getElementById("timeB").textContent = fmt(timeB);
+
+  function render(){
+    elA.textContent = fmt(timeA);
+    elB.textContent = fmt(timeB);
+
+    elA.classList.toggle("active", active === "A");
+    elB.classList.toggle("active", active === "B");
+  }
+
+  function shuffle(arr){
+    for (let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function nextImageFor(player){
+    if (player === "A") {
+      if (!deckA.length) return;
+      if (idxA >= deckA.length) { shuffle(deckA); idxA = 0; }
+      photo.src = deckA[idxA++];
+    } else {
+      if (!deckB.length) return;
+      if (idxB >= deckB.length) { shuffle(deckB); idxB = 0; }
+      photo.src = deckB[idxB++];
+    }
+  }
+
+  function stopTick(){
+    if (tick) { clearInterval(tick); tick = null; }
+  }
+
+  function startTick(){
+    if (tick) return;
+    tick = setInterval(() => {
+      if (!running) return;
+
+      if (active === "A") {
+        timeA = Math.max(0, timeA - 1);
+        if (timeA === 0) running = false;
+      } else {
+        timeB = Math.max(0, timeB - 1);
+        if (timeB === 0) running = false;
+      }
+
+      render();
+      if (!running) flash();
+    }, 1000);
+  }
+
+  function toggleRun(){
+    running = !running;
+    if (running) startTick();
+    render();
+  }
+
+  // ====== OPERATOR: POPRAWNA (P) -> zamiana gracza + nowe zdjęcie dla wchodzącego ======
+  function correct(){
+    active = (active === "A") ? "B" : "A";
+    nextImageFor(active);
+    render();
+  }
+
+  // ====== OPERATOR: PAS (Q) -> -3s aktywnego + nowe zdjęcie (bez zmiany gracza) ======
+  function pass(){
+    if (active === "A") timeA = Math.max(0, timeA - 3);
+    else timeB = Math.max(0, timeB - 3);
+    nextImageFor(active);
+    render();
+  }
+
+  function resetTimers(){
+    running = false;
+    stopTick();
+    timeA = 60;
+    timeB = 60;
+    active = "A";
+    render();
+    nextImageFor(active);
+  }
+
+  // mini efekt (bez nowych elementów UI)
+  function flash(){
+    document.body.animate(
+      [{filter:'brightness(1)'},{filter:'brightness(1.6)'},{filter:'brightness(1)'}],
+      {duration:350, iterations:2}
+    );
+  }
+
+  // ====== INIT: wczytaj categories.json, zbuduj listę 60 JPG dla Kategoria1, preload i start ======
+  async function initImages(){
+    const res = await fetch("data/categories.json");
+    const categories = await res.json();
+
+    const cat = categories["Kategoria1"];
+    if (!cat) throw new Error("Brak Kategoria1 w data/categories.json");
+
+    const urls = [];
+    for (let i = 1; i <= cat.count; i++){
+      const n = String(i).padStart(2, "0");
+      urls.push(`${cat.dir}/${n}.${cat.ext}`);
+    }
+
+    // preload (ignorujemy brakujące pliki)
+    await Promise.all(urls.map(url => new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = url;
+    })));
+
+    // dwie niezależne talie (to samo źródło, osobne tasowanie)
+    deckA = shuffle([...urls]);
+    deckB = shuffle([...urls]);
+    idxA = 0;
+    idxB = 0;
+
+    nextImageFor("A"); // startowo pokaz A
+  }
+
+  // ====== STEROWANIE KLAWIATURĄ ======
+  window.addEventListener("keydown", (e) => {
+    const k = (e.key || "").toLowerCase();
+
+    // start/pauza: Enter lub Spacja
+    if (k === "enter" || k === " ") { e.preventDefault(); toggleRun(); return; }
+
+    // POPRAWNA: P (zamiana gracza)
+    if (k === "p") { correct(); return; }
+
+    // PAS: Q (-3s + nowe zdjęcie, bez zamiany)
+    if (k === "q") { pass(); return; }
+
+    // awaryjnie reset: R
+    if (k === "r") { resetTimers(); return; }
+  }, {passive:false});
+
+  render();
+  initImages().catch(err => {
+    console.error(err);
+    // fallback: pokaż cokolwiek jeśli init padnie
+    photo.alt = "Nie udało się wczytać zdjęć";
+  });
+
 </script>
 
 </body>
