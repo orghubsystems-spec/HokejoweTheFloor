@@ -254,13 +254,26 @@ body{
   opacity:.9;
 }
 .loadBtn:hover{ opacity:1; }
+/* ====== HIDE OPERATOR BUTTONS IN FULLSCREEN ====== */
+#viewport:fullscreen #fsBtn,
+#viewport:fullscreen #loadBtn,
+#viewport:fullscreen #clearBtn{
+  display:none !important;
+}
+
+/* Safari/Starsze WebKit */
+#viewport:-webkit-full-screen #fsBtn,
+#viewport:-webkit-full-screen #loadBtn,
+#viewport:-webkit-full-screen #clearBtn{
+  display:none !important;
+}
 
   </style>
 </head>
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS 03</div>
+<div id="branding">ORG HUB SYSTEMS 04</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -273,12 +286,14 @@ body{
         <div class="inputBox">
           <input id="nameB" type="text" placeholder="Player B" />
         </div>
-        <div style="display:flex; gap:12px; margin:12px 0;">
-  <button id="loadBtn" class="loadBtn">📁 Wczytaj folder</button>
-  <input id="folderInput" type="file" webkitdirectory directory multiple accept="image/*" style="display:none" />
-</div>
+
       </div>
       <div id="grid" class="grid"></div>
+      <div style="display:flex; gap:12px; margin:12px 0;">
+  <button id="loadBtn" class="loadBtn">📁 Wczytaj folder</button>
+  <button id="clearBtn" class="loadBtn">🧹 Wyczyść</button>
+  <input id="folderInput" type="file" webkitdirectory directory multiple accept="image/*" style="display:none" />
+</div>
     </div>
   </div>
 
