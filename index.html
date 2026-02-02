@@ -216,6 +216,16 @@ body{
   opacity:.85;
   user-select:none;
 }
+    /* chowaj przycisk w trybie fullscreen */
+#viewport:fullscreen #fsBtn{
+  display:none;
+}
+
+/* Safari/Starsze WebKit (na wszelki wypadek) */
+#viewport:-webkit-full-screen #fsBtn{
+  display:none;
+}
+
 #fsBtn:hover{ opacity:1; }
 
 /* ====== ANSWER BELOW PHOTO ====== */
