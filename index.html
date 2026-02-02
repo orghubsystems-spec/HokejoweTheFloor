@@ -216,16 +216,6 @@ body{
   opacity:.85;
   user-select:none;
 }
-    /* chowaj przycisk w trybie fullscreen */
-#viewport:fullscreen #fsBtn{
-  display:none;
-}
-
-/* Safari/Starsze WebKit (na wszelki wypadek) */
-#viewport:-webkit-full-screen #fsBtn{
-  display:none;
-}
-
 #fsBtn:hover{ opacity:1; }
 
 /* ====== ANSWER BELOW PHOTO ====== */
@@ -257,7 +247,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS 01</div>
+<div id="branding">ORG HUB SYSTEMS 02</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -583,40 +573,27 @@ body{
     }
   }
 
-async function buildDecksForIndex(i){
-  const key = categoryKeys[i];
-  const cat = categories[key];
+  async function buildDecksForIndex(i){
+    const key = categoryKeys[i];
+    const cat = categories[key];
 
-  let urls = [];
-
-  // 1) Jeśli jest manifest — bierzemy dokładne nazwy plików (obsługuje PL znaki i spacje)
-  if (cat.manifest) {
-    const res = await fetch(cat.manifest);
-    const files = await res.json(); // tablica nazw plików
-    urls = files.map(fn => `${cat.dir}/${fn}`);
-  } else {
-    // 2) Fallback: stary tryb 01.jpg..NN.jpg
+    const urls = [];
     for (let n = 1; n <= cat.count; n++){
       const nn = String(n).padStart(2, "0");
       urls.push(`${cat.dir}/${nn}.${cat.ext}`);
     }
+
+    await Promise.all(urls.map(url => new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = url;
+    })));
+
+    deckA = shuffle([...urls]);
+    deckB = shuffle([...urls]);
+    idxA = 0; idxB = 0;
   }
-
-  // preload (z encodeURI żeby działały PL znaki/spacje)
-  await Promise.all(urls.map(u => new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
-    img.src = encodeURI(u);
-  })));
-
-  // do talii zapisujemy już bezpieczne URL-e
-  const safe = urls.map(u => encodeURI(u));
-  deckA = shuffle([...safe]);
-  deckB = shuffle([...safe]);
-  idxA = 0; idxB = 0;
-}
-
 
   async function selectCategory(i){
     saveNames();
