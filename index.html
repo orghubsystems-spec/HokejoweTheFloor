@@ -268,12 +268,29 @@ body{
   display:none !important;
 }
 
+    /* ====== PHOTO FEEDBACK ====== */
+.photoWrap{
+  position: relative;
+}
+
+.photoWrap.correct{
+  box-shadow: 0 0 0 6px rgba(0, 200, 0, 0.9),
+              0 0 25px rgba(0, 200, 0, 0.6);
+  border-radius: 18px;
+}
+
+.photoWrap.wrong{
+  box-shadow: 0 0 0 6px rgba(220, 0, 0, 0.9),
+              0 0 25px rgba(220, 0, 0, 0.6);
+  border-radius: 18px;
+}
+  
   </style>
 </head>
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS 06</div>
+<div id="branding">ORG HUB SYSTEMS 07</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -348,6 +365,7 @@ body{
 
   // ====== UI refs ======
   const photo = document.getElementById("photo");
+  const photoWrap = document.querySelector(".photoWrap");
   const answerEl = document.getElementById("answer");
   const fsBtn = document.getElementById("fsBtn");
   const elA = document.getElementById("timeA");
@@ -566,11 +584,12 @@ folderInput.addEventListener("change", async () => {
     if (!$round.classList.contains("active")) return;
     if (!running) return;
     if (actionLock) return;
-
+    showCorrect();
     revealAnswerThen(() => {
       active = (active === "A") ? "B" : "A";
       nextImageFor(active);
       renderTimers();
+      clearPhotoFeedback();
     });
   }
 
@@ -578,7 +597,7 @@ folderInput.addEventListener("change", async () => {
     if (!$round.classList.contains("active")) return;
     if (!running) return;
     if (actionLock) return;
-
+    showWrong();
     revealAnswerThen(() => {
       if (active === "A") timeA = Math.max(0, timeA - 3);
       else timeB = Math.max(0, timeB - 3);
@@ -588,6 +607,7 @@ folderInput.addEventListener("change", async () => {
 
       if (timeA === 0) announceWinner("B");
       if (timeB === 0) announceWinner("A");
+      clearPhotoFeedback();
     });
   }
 
@@ -645,6 +665,23 @@ function showAnswerForCurrentImage(){
     answerEl.textContent = "";
   }
 
+  function clearPhotoFeedback(){
+  if (!photoWrap) return;
+  photoWrap.classList.remove("correct", "wrong");
+}
+
+function showCorrect(){
+  if (!photoWrap) return;
+  clearPhotoFeedback();
+  photoWrap.classList.add("correct");
+}
+
+function showWrong(){
+  if (!photoWrap) return;
+  clearPhotoFeedback();
+  photoWrap.classList.add("wrong");
+}
+  
   async function revealAnswerThen(doAfter){
     if (actionLock) return;
     actionLock = true;
