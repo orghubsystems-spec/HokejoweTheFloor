@@ -1,5 +1,5 @@
 {
-  "Kategoria1": { "dir": "assets/k1", "count": 60, "ext": "jpg" },
+  "Kategoria1": { "dir": "assets/k1", "10": 60, "ext": "jpg" },
   "Kategoria2": { "dir": "assets/k2", "count": 60, "ext": "jpg" },
   "Kategoria3": { "dir": "assets/k3", "count": 60, "ext": "jpg" },
   "Kategoria4": { "dir": "assets/k4", "count": 60, "ext": "jpg" },
