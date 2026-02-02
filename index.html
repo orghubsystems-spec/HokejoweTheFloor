@@ -290,7 +290,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS 10</div>
+<div id="branding">ORG HUB SYSTEMS 11</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -411,6 +411,30 @@ body{
   let deckA = [], deckB = [];
   let idxA = 0, idxB = 0;
   let currentAnswer = "";
+
+  let audioCtx = null;
+
+function beep(freq = 800, duration = 120){
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = "sine";
+  osc.frequency.value = freq;
+
+  gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.2, audioCtx.currentTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration / 1000);
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration / 1000);
+}
 
   function fmt(s){
     s = Math.max(0, s);
@@ -824,6 +848,10 @@ if (localMode) {
     const steps = ["3","2","1","START"];
     for (const s of steps){
       countNum.textContent = s;
+            // dźwięk odliczania: pik...pik...pik...piiiiiik
+      if (s === "START") beep(600, 700);
+      else beep(900, 120);
+      
       countNum.classList.add("go");
       await wait(110);
       countNum.classList.remove("go");
