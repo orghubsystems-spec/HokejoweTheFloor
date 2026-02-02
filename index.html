@@ -273,7 +273,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS 04</div>
+<div id="branding">ORG HUB SYSTEMS 05</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -455,21 +455,37 @@ folderInput.addEventListener("change", async () => {
 
   if (!files.length) return;
 
-  // Sprzątamy stare URL-e
-  cleanupLocalUrls();
-
   // Grupowanie po pierwszym segmencie ścieżki: "lodowisko/01.xxx.jpg"
-  const map = new Map(); // label -> array File
+  const incoming = new Map(); // label -> array File
   for (const f of files){
     const rel = f.webkitRelativePath || f.name;
     const seg = rel.split("/")[0] || "Kategoria";
-    if (!map.has(seg)) map.set(seg, []);
-    map.get(seg).push(f);
+    if (!incoming.has(seg)) incoming.set(seg, []);
+    incoming.get(seg).push(f);
   }
 
-  // Budujemy lokalne kategorie
-  localCats = [];
-  for (const [label, arr] of map.entries()){
+  // Funkcja: usuń starą kategorię (tylko tę jedną) i zwolnij jej ObjectURL
+  function removeCategoryByLabel(label){
+    const idx = localCats.findIndex(c => c.label === label);
+    if (idx === -1) return;
+
+    // revoke url tylko dla tej kategorii
+    const old = localCats[idx];
+    for (const img of old.images){
+      try { URL.revokeObjectURL(img.url); } catch(e){}
+      // usuń też z listy globalnej, jeśli trzymasz
+      const p = localObjectUrls.indexOf(img.url);
+      if (p !== -1) localObjectUrls.splice(p, 1);
+    }
+
+    localCats.splice(idx, 1);
+  }
+
+  // Zbuduj / podmień kategorie, ale NIE kasuj reszty
+  for (const [label, arr] of incoming.entries()){
+    // jeśli istnieje kategoria o tej nazwie, podmień tylko ją
+    removeCategoryByLabel(label);
+
     // sort po nazwie pliku (żeby numerki 01.. były w kolejności)
     arr.sort((a,b) => (a.name || "").localeCompare((b.name || ""), "pl", {numeric:true}));
 
@@ -478,6 +494,34 @@ folderInput.addEventListener("change", async () => {
       localObjectUrls.push(url);
       return { url, answer: answerFromFilename(f.name || "") };
     });
+
+    localCats.push({ label, images });
+  }
+
+  // Sortujemy kategorie alfabetycznie
+  localCats.sort((a,b) => a.label.localeCompare(b.label, "pl"));
+
+  // Preload tylko NOWO dodanych/podmienionych kategorii:
+  // (czyli tych z incoming)
+  for (const [label] of incoming.entries()){
+    const cat = localCats.find(c => c.label === label);
+    if (!cat) continue;
+    for (const img of cat.images){
+      await preloadImage(img.url);
+    }
+  }
+
+  localMode = true;
+
+  // Ustaw etykiety kafelków jako nazwy kategorii (pierwsze 9)
+  catLabels = localCats.slice(0, 9).map(c => c.label);
+  saveCatLabels();
+
+  // Pozwól ponownie wybrać TEN SAM folder (reset input)
+  folderInput.value = "";
+
+  renderMenu();
+});
 
     localCats.push({ label, images });
   }
