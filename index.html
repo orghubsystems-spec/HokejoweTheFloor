@@ -273,7 +273,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS 04</div>
+<div id="branding">ORG HUB SYSTEMS 06</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -448,29 +448,41 @@ async function preloadImage(url){
 
 // Operator wybiera folder (z podfolderami = kategorie)
 loadBtn.addEventListener("click", () => folderInput.click());
-
+  
 folderInput.addEventListener("change", async () => {
   const files = Array.from(folderInput.files || [])
     .filter(f => (f.type || "").startsWith("image/"));
 
   if (!files.length) return;
 
-  // Sprzątamy stare URL-e
-  cleanupLocalUrls();
-
   // Grupowanie po pierwszym segmencie ścieżki: "lodowisko/01.xxx.jpg"
-  const map = new Map(); // label -> array File
+  const incoming = new Map(); // label -> array File
   for (const f of files){
     const rel = f.webkitRelativePath || f.name;
     const seg = rel.split("/")[0] || "Kategoria";
-    if (!map.has(seg)) map.set(seg, []);
-    map.get(seg).push(f);
+    if (!incoming.has(seg)) incoming.set(seg, []);
+    incoming.get(seg).push(f);
   }
 
-  // Budujemy lokalne kategorie
-  localCats = [];
-  for (const [label, arr] of map.entries()){
-    // sort po nazwie pliku (żeby numerki 01.. były w kolejności)
+  // usuń tylko jedną kategorię po label (i zwolnij jej URL-e)
+  function removeCategoryByLabel(label){
+    const idx = localCats.findIndex(c => c.label === label);
+    if (idx === -1) return;
+
+    const old = localCats[idx];
+    for (const img of old.images){
+      try { URL.revokeObjectURL(img.url); } catch(e){}
+      const p = localObjectUrls.indexOf(img.url);
+      if (p !== -1) localObjectUrls.splice(p, 1);
+    }
+    localCats.splice(idx, 1);
+  }
+
+  // Dodaj/podmień tylko kategorie, które właśnie przyszły
+  for (const [label, arr] of incoming.entries()){
+    // jeśli taka kategoria już była, podmień ją
+    removeCategoryByLabel(label);
+
     arr.sort((a,b) => (a.name || "").localeCompare((b.name || ""), "pl", {numeric:true}));
 
     const images = arr.map(f => {
@@ -480,28 +492,28 @@ folderInput.addEventListener("change", async () => {
     });
 
     localCats.push({ label, images });
-  }
 
-  // Sortujemy kategorie alfabetycznie (opcjonalnie, ale czytelne)
-  localCats.sort((a,b) => a.label.localeCompare(b.label, "pl"));
-
-  // Preload WSZYSTKIE (żeby potem było płynnie)
-  // Jeśli masz bardzo dużo zdjęć, można to robić kategoriami — na razie pełen preload.
-  for (const cat of localCats){
-    for (const img of cat.images){
+    // preload tylko tej jednej kategorii (żeby nie robić laga)
+    for (const img of images){
       await preloadImage(img.url);
     }
   }
 
-  // Włączamy tryb lokalny i generujemy kafelki z folderów
+  // sort alfabetyczny kategorii
+  localCats.sort((a,b) => a.label.localeCompare(b.label, "pl"));
+
   localMode = true;
 
-  // Etykiety kafelków = nazwy folderów (edytowalne jak wcześniej)
+  // kafelki = pierwsze 9 kategorii
   catLabels = localCats.slice(0, 9).map(c => c.label);
   saveCatLabels();
 
+  // pozwól załadować TEN SAM folder ponownie
+  folderInput.value = "";
+
   renderMenu();
 });
+
 
   function nextImageFor(player){
     if (player === "A") {
