@@ -290,7 +290,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS 07</div>
+<div id="branding">ORG HUB SYSTEMS 08</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -383,8 +383,9 @@ body{
 
   // ====== CONFIG ======
   const ROUND_SECONDS = 60;
-  const STEP_MS = 800;
-  const ANSWER_MS = 1300; // ile ms pokazujemy odpowiedź po P/Q
+  const STEP_MS = 2000;
+  const ANSWER_MS = 2000; // ile ms pokazujemy odpowiedź po P/Q
+  const WRONG_HOLD_MS = 3000; // ile ms trzymamy złe zdjęcie po Q
   let actionLock = false; // blokuje spam P/Q podczas pokazywania odpowiedzi
 
   // ====== STORAGE KEYS ======
@@ -598,17 +599,16 @@ folderInput.addEventListener("change", async () => {
     if (!running) return;
     if (actionLock) return;
     showWrong();
-    revealAnswerThen(() => {
-      if (active === "A") timeA = Math.max(0, timeA - 3);
-      else timeB = Math.max(0, timeB - 3);
+    revealAnswerThen(async () => {
+        // trzymamy złe zdjęcie na ekranie 3 sekundy (kara jako zwłoka)
+    await wait(WRONG_HOLD_MS);
 
-      nextImageFor(active);
-      renderTimers();
+    nextImageFor(active);
+    renderTimers();
 
-      if (timeA === 0) announceWinner("B");
-      if (timeB === 0) announceWinner("A");
-      clearPhotoFeedback();
-    });
+    clearPhotoFeedback();
+});
+
   }
 
   function resetRound(){
