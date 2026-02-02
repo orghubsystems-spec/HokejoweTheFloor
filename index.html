@@ -290,7 +290,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS 15</div>
+<div id="branding">ORG HUB SYSTEMS 16</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -524,7 +524,8 @@ folderInput.addEventListener("change", async () => {
   // Dodaj/podmień tylko kategorie, które właśnie przyszły
   for (const [label, arr] of incoming.entries()){
     // jeśli taka kategoria już była, podmień ją
-    removeCategoryByLabel(label);
+    const existingIdx = localCats.findIndex(c => c.label === label);
+if (existingIdx !== -1) removeCategoryByLabel(label);
 
     arr.sort((a,b) => (a.name || "").localeCompare((b.name || ""), "pl", {numeric:true}));
 
@@ -534,7 +535,9 @@ folderInput.addEventListener("change", async () => {
       return { url, answer: answerFromFilename(f.name || "") };
     });
 
-    localCats.push({ label, images });
+    const newCat = { label, images };
+if (existingIdx !== -1) localCats.splice(existingIdx, 0, newCat);
+else localCats.push(newCat);
 
     // preload tylko tej jednej kategorii (żeby nie robić laga)
     for (const img of images){
