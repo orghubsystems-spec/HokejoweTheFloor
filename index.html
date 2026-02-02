@@ -284,13 +284,52 @@ body{
               0 0 25px rgba(220, 0, 0, 0.6);
   border-radius: 18px;
 }
+/* ====== TIMES: NAMES + LABELS ====== */
+.times{
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:18px;
+  padding:0 40px;
+}
+
+.timeRow{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  color:#fff;
+  font-weight:900;
+}
+
+.timeRow.left{ justify-content:flex-start; }
+.timeRow.right{ justify-content:flex-end; }
+
+.playerLabel{
+  font-size:18px;
+  opacity:.7;
+  letter-spacing:1px;
+  white-space:nowrap;
+}
+
+.playerName{
+  font-size:26px;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.time{
+  font-size:48px;
+  min-width:110px;
+  text-align:center;
+}
 
   </style>
 </head>
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS 17</div>
+<div id="branding">ORG HUB SYSTEMS 18</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -335,10 +374,22 @@ body{
         <img id="photo" alt="zdjęcie" />
       </div>
       <div id="answer" class="answer"></div>
-      <div class="times">
-        <div id="timeA" class="time active">01:00</div>
-        <div id="timeB" class="time right">01:00</div>
-      </div>
+<div class="times">
+  <!-- LEWA: Player A – czas – imię -->
+  <div class="timeRow left">
+    <div class="playerLabel">PLAYER A</div>
+    <div id="timeA" class="time active">01:00</div>
+    <div id="nameA_live" class="playerName"></div>
+  </div>
+
+  <!-- PRAWA: imię – czas – Player B -->
+  <div class="timeRow right">
+    <div id="nameB_live" class="playerName"></div>
+    <div id="timeB" class="time">01:00</div>
+    <div class="playerLabel">PLAYER B</div>
+  </div>
+</div>
+
     </div>
   </div>
 
@@ -379,6 +430,9 @@ body{
   const nameBInput = document.getElementById("nameB");
   const loadBtn = document.getElementById("loadBtn");
   const folderInput = document.getElementById("folderInput");
+  const nameA_live = document.getElementById("nameA_live");
+  const nameB_live = document.getElementById("nameB_live");
+
 
 
   // ====== CONFIG ======
@@ -850,6 +904,9 @@ if (localMode) {
   function wait(ms){ return new Promise(res => setTimeout(res, ms)); }
 
   async function startSequence(){
+    nameA_live.textContent = (nameAInput.value || "").trim();
+    nameB_live.textContent = (nameBInput.value || "").trim();
+
     if (!startArmed) return;
     startArmed = false;
 
