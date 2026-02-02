@@ -290,7 +290,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS 13</div>
+<div id="branding">ORG HUB SYSTEMS 14</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -521,15 +521,10 @@ folderInput.addEventListener("change", async () => {
     localCats.splice(idx, 1);
   }
 
-  // Dodaj/podmień tylko kategorie, które właśnie przyszły,
-  // ALE: zachowaj kolejność slotów (bez sortowania).
+  // Dodaj/podmień tylko kategorie, które właśnie przyszły
   for (const [label, arr] of incoming.entries()){
-
-    // sprawdź czy ta kategoria już istnieje i zapamiętaj jej index (slot)
-    const existingIdx = localCats.findIndex(c => c.label === label);
-
-    // jeśli istnieje, usuń ją (zwolni URL-e), ale zapamiętany index zostaje
-    if (existingIdx !== -1) removeCategoryByLabel(label);
+    // jeśli taka kategoria już była, podmień ją
+    removeCategoryByLabel(label);
 
     arr.sort((a,b) => (a.name || "").localeCompare((b.name || ""), "pl", {numeric:true}));
 
@@ -539,19 +534,16 @@ folderInput.addEventListener("change", async () => {
       return { url, answer: answerFromFilename(f.name || "") };
     });
 
-    // preload tylko tej kategorii
+    localCats.push({ label, images });
+
+    // preload tylko tej jednej kategorii (żeby nie robić laga)
     for (const img of images){
       await preloadImage(img.url);
     }
-
-    const newCat = { label, images };
-
-    // jeśli była wcześniej w slocie — wstaw z powrotem w to samo miejsce
-    if (existingIdx !== -1) localCats.splice(existingIdx, 0, newCat);
-    else localCats.push(newCat);
   }
 
-  }
+  // sort alfabetyczny kategorii
+  localCats.sort((a,b) => a.label.localeCompare(b.label, "pl"));
 
   localMode = true;
 
@@ -864,7 +856,7 @@ if (localMode) {
       countNum.textContent = s;
             // dźwięk odliczania: pik...pik...pik...piiiiiik
       if (s === "START") beep(1500, 1500);
-      else beep(900, 420);
+      else beep(1000, 500);
       
       countNum.classList.add("go");
       await wait(110);
