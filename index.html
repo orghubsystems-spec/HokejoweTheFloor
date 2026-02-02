@@ -290,7 +290,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS 08</div>
+<div id="branding">ORG HUB SYSTEMS 10</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -594,22 +594,26 @@ folderInput.addEventListener("change", async () => {
     });
   }
 
-  function pass(){ // Q
-    if (!$round.classList.contains("active")) return;
-    if (!running) return;
-    if (actionLock) return;
-    showWrong();
-    revealAnswerThen(async () => {
-        // trzymamy złe zdjęcie na ekranie 3 sekundy (kara jako zwłoka)
-    await wait(WRONG_HOLD_MS);
+async function pass(){ // Q
+  if (!$round.classList.contains("active")) return;
+  if (!running) return;
+  if (actionLock) return;
 
-    nextImageFor(active);
-    renderTimers();
+  actionLock = true;
 
-    clearPhotoFeedback();
-});
+  // czerwona ramka + pokaż odpowiedź na CAŁE 3 sekundy
+  showWrong();
+  showAnswerForCurrentImage();
 
-  }
+  await wait(WRONG_HOLD_MS);
+
+  hideAnswer();
+  nextImageFor(active);     // ten sam gracz dostaje nowe zdjęcie
+  renderTimers();
+
+  clearPhotoFeedback();
+  actionLock = false;
+}
 
   function resetRound(){
     running = false;
