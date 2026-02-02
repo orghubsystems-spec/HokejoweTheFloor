@@ -199,6 +199,48 @@ body{
   pointer-events: none; /* żeby nigdy nie łapał klików */
   text-transform: uppercase;
 }
+/* ====== FULLSCREEN BUTTON ====== */
+#fsBtn{
+  position:absolute;
+  top:24px;
+  left:32px;
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  border:1px solid #ffffff25;
+  background:#00000035;
+  color:#fff;
+  font-size:20px;
+  font-weight:900;
+  cursor:pointer;
+  opacity:.85;
+  user-select:none;
+}
+#fsBtn:hover{ opacity:1; }
+
+/* ====== ANSWER BELOW PHOTO ====== */
+.answer{
+  width:100%;
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 16px;
+  border-radius:18px;
+  border:1px solid #ffffff18;
+  background:#00000025;
+  font-size:26px;
+  font-weight:1000;
+  letter-spacing:.5px;
+  text-align:center;
+  opacity:0;               /* domyślnie niewidoczny */
+  transform: translateY(-4px);
+  transition: opacity .12s ease, transform .12s ease;
+}
+.answer.show{
+  opacity:1;
+  transform: translateY(0);
+}
 
   </style>
 </head>
@@ -206,6 +248,7 @@ body{
   
 <div id="viewport">
 <div id="branding">ORG HUB SYSTEMS</div>
+  <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
   <div id="menu" class="screen active">
@@ -243,6 +286,7 @@ body{
       <div class="photoWrap">
         <img id="photo" alt="zdjęcie" />
       </div>
+      <div id="answer" class="answer"></div>
       <div class="times">
         <div id="timeA" class="time active">01:00</div>
         <div id="timeB" class="time right">01:00</div>
@@ -273,6 +317,8 @@ body{
 
   // ====== UI refs ======
   const photo = document.getElementById("photo");
+  const answerEl = document.getElementById("answer");
+  const fsBtn = document.getElementById("fsBtn");
   const elA = document.getElementById("timeA");
   const elB = document.getElementById("timeB");
   const grid = document.getElementById("grid");
@@ -286,6 +332,8 @@ body{
   // ====== CONFIG ======
   const ROUND_SECONDS = 60;
   const STEP_MS = 1000;
+  const ANSWER_MS = 800; // ile ms pokazujemy odpowiedź po P/Q
+  let actionLock = false; // blokuje spam P/Q podczas pokazywania odpowiedzi
 
   // ====== STORAGE KEYS ======
   const LS_A = "floor_name_a";
@@ -375,25 +423,33 @@ body{
       renderTimers();
     }, 1000);
   }
-
   function correct(){ // P
     if (!$round.classList.contains("active")) return;
     if (!running) return;
-    active = (active === "A") ? "B" : "A";
-    nextImageFor(active);
-    renderTimers();
+    if (actionLock) return;
+
+    revealAnswerThen(() => {
+      active = (active === "A") ? "B" : "A";
+      nextImageFor(active);
+      renderTimers();
+    });
   }
 
   function pass(){ // Q
     if (!$round.classList.contains("active")) return;
     if (!running) return;
-    if (active === "A") timeA = Math.max(0, timeA - 3);
-    else timeB = Math.max(0, timeB - 3);
-    nextImageFor(active);
-    renderTimers();
+    if (actionLock) return;
 
-    if (timeA === 0) announceWinner("B");
-    if (timeB === 0) announceWinner("A");
+    revealAnswerThen(() => {
+      if (active === "A") timeA = Math.max(0, timeA - 3);
+      else timeB = Math.max(0, timeB - 3);
+
+      nextImageFor(active);
+      renderTimers();
+
+      if (timeA === 0) announceWinner("B");
+      if (timeB === 0) announceWinner("A");
+    });
   }
 
   function resetRound(){
@@ -403,6 +459,67 @@ body{
     timeB = ROUND_SECONDS;
     active = "A";
     renderTimers();
+  }
+    // ====== FULLSCREEN ======
+  function isFullscreen(){
+    return !!document.fullscreenElement;
+  }
+  async function toggleFullscreen(){
+    try{
+      if (!isFullscreen()) {
+        await document.getElementById("viewport").requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    }catch(e){
+      console.error(e);
+    }
+  }
+  fsBtn.addEventListener("click", toggleFullscreen);
+
+  // ====== ANSWER PARSING FROM FILENAME ======
+  // Obsługuje np: assets/k1/01.Nazwa_odpowiedzi.jpg
+  function getAnswerFromSrc(src){
+    try{
+      const clean = src.split("?")[0];
+      const file = clean.split("/").pop();          // 01.Nazwa.jpg
+      const base = file.replace(/\.[^.]+$/, "");    // 01.Nazwa
+      const parts = base.split(".");
+      if (parts.length < 2) return "";              // np. 01 -> brak odpowiedzi
+      const raw = parts.slice(1).join(".");         // Nazwa_odpowiedzi
+      return decodeURIComponent(raw).replace(/_/g, " ").trim();
+    }catch(e){
+      return "";
+    }
+  }
+
+  function showAnswerForCurrentImage(){
+    const txt = getAnswerFromSrc(photo.src);
+    if (!txt) return false;
+    answerEl.textContent = txt;
+    answerEl.classList.add("show");
+    return true;
+  }
+
+  function hideAnswer(){
+    answerEl.classList.remove("show");
+    answerEl.textContent = "";
+  }
+
+  async function revealAnswerThen(doAfter){
+    if (actionLock) return;
+    actionLock = true;
+
+    // pokaż odpowiedź dla AKTUALNIE wyświetlanego zdjęcia (zanim je zmienimy)
+    const shown = showAnswerForCurrentImage();
+
+    // nawet jeśli brak tekstu, robimy krótką przerwę, żeby flow było stałe
+    await wait(ANSWER_MS);
+
+    hideAnswer();
+    doAfter();
+
+    actionLock = false;
   }
 
   // ====== NAMES ======
@@ -518,6 +635,7 @@ body{
   // ====== KEYBOARD ======
   window.addEventListener("keydown", (e) => {
     const k = (e.key || "").toLowerCase();
+      if (k === "f") { toggleFullscreen(); return; }
 
     // MENU: 1..9 wybór
     if ($menu.classList.contains("active")) {
