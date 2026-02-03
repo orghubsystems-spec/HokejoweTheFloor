@@ -327,13 +327,37 @@ body{
 .playerLabel{
   display:none !important;
 }
+    /* ====== ANSWER OVERLAY (NO LAYOUT SHIFT) ====== */
+.stage{
+  position: relative;
+}
+
+#answer{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 90px;          /* nad zegarami — w razie czego zmienimy */
+  text-align: center;
+  pointer-events: none;
+  margin: 0 !important;  /* żeby nie pchało layoutu */
+}
+
+/* jeśli masz .answer zamiast #answer, dodaj też: */
+.answer{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 90px;
+  pointer-events: none;
+  margin: 0 !important;
+}
 
   </style>
 </head>
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS 22</div>
+<div id="branding">ORG HUB SYSTEMS 23</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
