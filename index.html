@@ -357,7 +357,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS</div>
+<div id="branding">ORG HUB SYSTEMS sort.ok</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -609,7 +609,11 @@ folderInput.addEventListener("change", async () => {
     const existingIdx = localCats.findIndex(c => c.label === label);
 if (existingIdx !== -1) removeCategoryByLabel(label);
 
-    arr.sort((a,b) => (a.name || "").localeCompare((b.name || ""), "pl", {numeric:true}));
+    arr.sort((a, b) => {
+  const na = parseInt((a.name.match(/^(\d+)/) || [0,0])[1], 10);
+  const nb = parseInt((b.name.match(/^(\d+)/) || [0,0])[1], 10);
+  return na - nb;
+});
 
     const images = arr.map(f => {
       const url = URL.createObjectURL(f);
