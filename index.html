@@ -357,7 +357,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS sort</div>
+<div id="branding">ORG HUB SYSTEMS sort.OK</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -492,6 +492,9 @@ body{
   // decks
   let deckA = [], deckB = [];
   let idxA = 0, idxB = 0;
+  let deck = [];
+  let idx = 0;
+
   let currentAnswer = "";
 
   let audioCtx = null;
@@ -646,22 +649,15 @@ else localCats.push(newCat);
   renderMenu();
 });
 
+function nextImageFor(){
+  if (!deck.length) return;
+  if (idx >= deck.length) idx = 0;
 
-  function nextImageFor(player){
-    if (player === "A") {
-      if (!deckA.length) return;
-      if (idxA >= deckA.length) idxA = 0;
-     const item = deckA[idxA++];
-    photo.src = (typeof item === "string") ? item : item.url;
-    currentAnswer = (typeof item === "string") ? "" : (item.answer || "");
-    } else {
-      if (!deckB.length) return;
-      if (idxB >= deckB.length) idxB = 0;
-      const item = deckB[idxB++];
-    photo.src = (typeof item === "string") ? item : item.url;
-    currentAnswer = (typeof item === "string") ? "" : (item.answer || "");
-    }
-  }
+  const item = deck[idx++];
+
+  photo.src = (typeof item === "string") ? item : item.url;
+  currentAnswer = (typeof item === "string") ? "" : (item.answer || "");
+}
 
   function stopTick(){
     if (tick) { clearInterval(tick); tick = null; }
@@ -707,7 +703,7 @@ else localCats.push(newCat);
     showCorrect();
     revealAnswerThen(() => {
       active = (active === "A") ? "B" : "A";
-      nextImageFor(active);
+      nextImageFor();
       renderTimers();
       clearPhotoFeedback();
     });
@@ -727,7 +723,7 @@ async function pass(){ // Q
   await wait(WRONG_HOLD_MS);
 
   hideAnswer();
-  nextImageFor(active);     // ten sam gracz dostaje nowe zdjęcie
+  nextImageFor();     // ten sam gracz dostaje nowe zdjęcie
   renderTimers();
 
   clearPhotoFeedback();
@@ -894,9 +890,9 @@ if (localMode) {
       img.src = url;
     })));
 
-    deckA = [...urls];
-    deckB = [...urls];
-    idxA = 0; idxB = 0;
+     deck = [...urls];   // już jest w kolejności 01..N
+    idx = 0;
+
   }
 
   async function selectCategory(i){
@@ -909,10 +905,8 @@ if (localMode) {
   if (!cat) return;
 
   // Decki z obiektów {url, answer}
-  const list = cat.images.slice();
-  deckA = list.slice();
-  deckB = list.slice();
-  idxA = 0; idxB = 0;
+  deck = cat.images.slice(); // już posortowane po numerze
+  idx = 0;
 
   resetRound();
   startArmed = true;
@@ -957,7 +951,7 @@ if (localMode) {
     }
 
     active = "A";
-    nextImageFor("A");
+    nextImageFor();
     show($round);
 
     running = true;
@@ -994,7 +988,7 @@ if (localMode) {
         if (currentCatIndex !== null) {
           resetRound();
           active = "A";
-          nextImageFor("A");
+          nextImageFor();
           show($round);
           running = true;
           startTick();
