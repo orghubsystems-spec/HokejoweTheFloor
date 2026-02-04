@@ -357,7 +357,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS sort.ok</div>
+<div id="branding">ORG HUB SYSTEMS sort</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -650,13 +650,13 @@ else localCats.push(newCat);
   function nextImageFor(player){
     if (player === "A") {
       if (!deckA.length) return;
-      if (idxA >= deckA.length) { shuffle(deckA); idxA = 0; }
+      if (idxA >= deckA.length) idxA = 0;
      const item = deckA[idxA++];
     photo.src = (typeof item === "string") ? item : item.url;
     currentAnswer = (typeof item === "string") ? "" : (item.answer || "");
     } else {
       if (!deckB.length) return;
-      if (idxB >= deckB.length) { shuffle(deckB); idxB = 0; }
+      if (idxB >= deckB.length) idxB = 0;
       const item = deckB[idxB++];
     photo.src = (typeof item === "string") ? item : item.url;
     currentAnswer = (typeof item === "string") ? "" : (item.answer || "");
@@ -894,8 +894,8 @@ if (localMode) {
       img.src = url;
     })));
 
-    deckA = shuffle([...urls]);
-    deckB = shuffle([...urls]);
+    deckA = [...urls];
+    deckB = [...urls];
     idxA = 0; idxB = 0;
   }
 
@@ -910,8 +910,8 @@ if (localMode) {
 
   // Decki z obiektów {url, answer}
   const list = cat.images.slice();
-  deckA = shuffle(list.slice());
-  deckB = shuffle(list.slice());
+  deckA = list.slice();
+  deckB = list.slice();
   idxA = 0; idxB = 0;
 
   resetRound();
