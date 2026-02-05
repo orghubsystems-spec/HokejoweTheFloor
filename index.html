@@ -357,7 +357,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS DinkBuzzer</div>
+<div id="branding">ORG HUB SYSTEMS DinkBuzzer0,8</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -521,48 +521,59 @@ function beep(freq = 800, duration = 120){
   osc.stop(audioCtx.currentTime + duration / 1000);
 }
 
-  function playDink(){ 
-  // wysoki, krótki "dink"
+function playDink(){
+  // DZWONECZEK: krótki, czysty "ding"
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-  const osc = audioCtx.createOscillator();
+  const now = audioCtx.currentTime;
+
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
 
-  osc.type = "triangle";
-  osc.frequency.setValueAtTime(1600, audioCtx.currentTime);
+  osc1.type = "sine";
+  osc2.type = "sine";
 
-  gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.25, audioCtx.currentTime + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.16);
+  // delikatny interwał daje efekt dzwonka
+  osc1.frequency.setValueAtTime(1800, now);
+  osc2.frequency.setValueAtTime(2400, now);
 
-  osc.connect(gain);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.25, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+
+  osc1.connect(gain);
+  osc2.connect(gain);
   gain.connect(audioCtx.destination);
 
-  osc.start();
-  osc.stop(audioCtx.currentTime + 0.18);
+  osc1.start(now);
+  osc2.start(now);
+  osc1.stop(now + 0.5);
+  osc2.stop(now + 0.5);
 }
 
 function playBuzzer(){
-  // długi, niski "YYYYY" (buzzer)
+  // NISKI BUZZER: 0,8 sekundy "YYYYYYYY"
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  const now = audioCtx.currentTime;
 
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
 
   osc.type = "sawtooth";
-  // lekki zjazd częstotliwości daje efekt "yyyyy"
-  osc.frequency.setValueAtTime(260, audioCtx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(140, audioCtx.currentTime + 0.45);
+  osc.frequency.setValueAtTime(180, now);                 // niski start
+  osc.frequency.exponentialRampToValueAtTime(120, now + 0.8);
 
-  gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.22, audioCtx.currentTime + 0.02);
-  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.50);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.28, now + 0.03);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
 
   osc.connect(gain);
   gain.connect(audioCtx.destination);
 
-  osc.start();
-  osc.stop(audioCtx.currentTime + 0.52);
+  osc.start(now);
+  osc.stop(now + 0.8);
 }
 
   function fmt(s){
