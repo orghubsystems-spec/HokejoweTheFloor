@@ -357,7 +357,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS DinkBuzzer0,8</div>
+<div id="branding">ORG HUB SYSTEMS DinkBuzzer1sek</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -522,7 +522,7 @@ function beep(freq = 800, duration = 120){
 }
 
 function playDink(){
-  // DZWONECZEK: krótki, czysty "ding"
+  // DZWONECZEK: niższy i dłuższy
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   const now = audioCtx.currentTime;
@@ -534,13 +534,14 @@ function playDink(){
   osc1.type = "sine";
   osc2.type = "sine";
 
-  // delikatny interwał daje efekt dzwonka
-  osc1.frequency.setValueAtTime(1800, now);
-  osc2.frequency.setValueAtTime(2400, now);
+  // niższe częstotliwości + interwał "dzwonka"
+  osc1.frequency.setValueAtTime(1100, now);
+  osc2.frequency.setValueAtTime(1650, now);
 
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.25, now + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+  gain.gain.exponentialRampToValueAtTime(0.28, now + 0.01);
+  // dłuższy ogon (bell)
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.95);
 
   osc1.connect(gain);
   osc2.connect(gain);
@@ -548,12 +549,12 @@ function playDink(){
 
   osc1.start(now);
   osc2.start(now);
-  osc1.stop(now + 0.5);
-  osc2.stop(now + 0.5);
+  osc1.stop(now + 1.0);
+  osc2.stop(now + 1.0);
 }
 
 function playBuzzer(){
-  // NISKI BUZZER: 0,8 sekundy "YYYYYYYY"
+  // STAŁY niski buzzer 1.0s (bez opadania i bez "pierda")
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   const now = audioCtx.currentTime;
@@ -561,19 +562,19 @@ function playBuzzer(){
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
 
-  osc.type = "sawtooth";
-  osc.frequency.setValueAtTime(180, now);                 // niski start
-  osc.frequency.exponentialRampToValueAtTime(120, now + 0.8);
+  // square = klasyczny buzzer
+  osc.type = "square";
+  osc.frequency.setValueAtTime(120, now); // stały niski ton
 
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.28, now + 0.03);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+  gain.gain.exponentialRampToValueAtTime(0.18, now + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.0);
 
   osc.connect(gain);
   gain.connect(audioCtx.destination);
 
   osc.start(now);
-  osc.stop(now + 0.8);
+  osc.stop(now + 1.0);
 }
 
   function fmt(s){
