@@ -555,51 +555,40 @@ function playDink(){
 }
   
 function playBuzzer(){
-  // PAS: agresywny "BRAAAP" (white noise + lowpass), 0.8s
+  // Elektromechaniczny brzęczyk (BZZZT), 1s, bez pulsacji i bez opadania
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   const now = audioCtx.currentTime;
-  const dur = 0.8;
 
-  // 1) White noise buffer
-  const sampleRate = audioCtx.sampleRate;
-  const length = Math.floor(sampleRate * dur);
-  const buffer = audioCtx.createBuffer(1, length, sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < length; i++){
-    data[i] = (Math.random() * 2 - 1);
-  }
-
-  const noise = audioCtx.createBufferSource();
-  noise.buffer = buffer;
-
-  // 2) Filtry żeby było "mięsne", nie syczące
-  const lp = audioCtx.createBiquadFilter();
-  lp.type = "lowpass";
-  lp.frequency.setValueAtTime(850, now);     // możesz kręcić 650–1100
-  lp.Q.setValueAtTime(0.7, now);
-
-  const hp = audioCtx.createBiquadFilter();
-  hp.type = "highpass";
-  hp.frequency.setValueAtTime(90, now);      // odcina sub-basowy "wiatr"
-  hp.Q.setValueAtTime(0.7, now);
-
-  // 3) Gain envelope: twardy atak, szybki decay, krótki ogon
+  const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.35, now + 0.015);   // ATTACK
-  gain.gain.linearRampToValueAtTime(0.12, now + 0.10);    // DECAY
-  gain.gain.setValueAtTime(0.12, now + 0.70);             // SUSTAIN
-  gain.gain.linearRampToValueAtTime(0.0001, now + dur);   // RELEASE
+  const shaper = audioCtx.createWaveShaper();
 
-  // 4) Połączenia
-  noise.connect(hp);
-  hp.connect(lp);
-  lp.connect(gain);
+  // overdrive curve (chropowatość)
+  const n = 44100;
+  const curve = new Float32Array(n);
+  const k = 35; // agresywność (większe = bardziej brudno)
+  for (let i = 0; i < n; i++){
+    const x = (i * 2) / n - 1;
+    curve[i] = (1 + k) * x / (1 + k * Math.abs(x));
+  }
+  shaper.curve = curve;
+  shaper.oversample = "4x";
+
+  osc.type = "square";
+  osc.frequency.setValueAtTime(190, now); // <- tu kręcisz "jak stary dzwonek" (np. 160–240)
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.30, now + 0.015);
+  gain.gain.setValueAtTime(0.30, now + 0.98);
+  gain.gain.linearRampToValueAtTime(0.0001, now + 1.0);
+
+  osc.connect(shaper);
+  shaper.connect(gain);
   gain.connect(audioCtx.destination);
 
-  noise.start(now);
-  noise.stop(now + dur);
+  osc.start(now);
+  osc.stop(now + 1.0);
 }
 
   function fmt(s){
