@@ -552,9 +552,8 @@ function playDink(){
   osc1.stop(now + 1.0);
   osc2.stop(now + 1.0);
 }
-
 function playBuzzer(){
-  // STAŁY niski buzzer 1.0s (bez opadania i bez "pierda")
+  // STAŁY niski buzzer 1.0s (bez opadania)
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   const now = audioCtx.currentTime;
@@ -562,19 +561,19 @@ function playBuzzer(){
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
 
-  // square = klasyczny buzzer
-  osc.type = "square";
-  osc.frequency.setValueAtTime(120, now); // stały niski ton
+  osc.type = "triangle";                 // łagodny, ale nadal "buzzer"
+  osc.frequency.setValueAtTime(140, now); // stała częstotliwość
 
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.18, now + 0.02);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.0);
+  gain.gain.linearRampToValueAtTime(0.20, now + 0.02);    // szybki atak
+  gain.gain.setValueAtTime(0.20, now + 0.98);             // STAŁA głośność
+  gain.gain.linearRampToValueAtTime(0.0001, now + 1.00);  // szybki release
 
   osc.connect(gain);
   gain.connect(audioCtx.destination);
 
   osc.start(now);
-  osc.stop(now + 1.0);
+  osc.stop(now + 1.00);
 }
 
   function fmt(s){
