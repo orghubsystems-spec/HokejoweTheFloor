@@ -357,7 +357,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS DinkBuzzer1sek</div>
+<div id="branding">ORG HUB SYSTEMS Dinkdoor</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -553,7 +553,7 @@ function playDink(){
   osc2.stop(now + 1.0);
 }
 function playBuzzer(){
-  // STAŁY niski buzzer 1.0s (bez opadania)
+  // STARY DZWONEK DO DRZWI – "BRRR" (1 sek)
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   const now = audioCtx.currentTime;
@@ -561,20 +561,32 @@ function playBuzzer(){
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
 
-  osc.type = "triangle";                 // łagodny, ale nadal "buzzer"
-  osc.frequency.setValueAtTime(70, now); // stała częstotliwość
+  osc.type = "square";                 // klasyczny dzwonek
+  osc.frequency.setValueAtTime(420, now); // ton „domowy”, nie stadion
 
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.20, now + 0.02);    // szybki atak
-  gain.gain.setValueAtTime(0.20, now + 0.98);             // STAŁA głośność
-  gain.gain.linearRampToValueAtTime(0.0001, now + 1.00);  // szybki release
+  gain.gain.linearRampToValueAtTime(0.22, now + 0.02);
+
+  // pulsowanie jak w starych dzwonkach
+  gain.gain.setValueAtTime(0.22, now + 0.10);
+  gain.gain.setValueAtTime(0.08, now + 0.18);
+  gain.gain.setValueAtTime(0.22, now + 0.26);
+  gain.gain.setValueAtTime(0.08, now + 0.34);
+  gain.gain.setValueAtTime(0.22, now + 0.42);
+  gain.gain.setValueAtTime(0.08, now + 0.50);
+  gain.gain.setValueAtTime(0.22, now + 0.58);
+  gain.gain.setValueAtTime(0.08, now + 0.66);
+  gain.gain.setValueAtTime(0.22, now + 0.74);
+
+  gain.gain.linearRampToValueAtTime(0.0001, now + 1.0);
 
   osc.connect(gain);
   gain.connect(audioCtx.destination);
 
   osc.start(now);
-  osc.stop(now + 1.00);
+  osc.stop(now + 1.0);
 }
+
 
   function fmt(s){
     s = Math.max(0, s);
