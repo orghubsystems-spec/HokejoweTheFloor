@@ -798,7 +798,8 @@ function startTick(){
     if (!$round.classList.contains("active")) return;
     if (!running) return;
     if (actionLock) return;
-    playDink();
+   console.log("P pressed, paused before:", paused);
+     playDink();
     showCorrect();
     revealAnswerThen(() => {
       active = (active === "A") ? "B" : "A";
@@ -903,22 +904,25 @@ function showWrong(){
   photoWrap.classList.add("wrong");
 }
   
-  async function revealAnswerThen(doAfter){
-    if (actionLock) return;
-    actionLock = true;
+async function revealAnswerThen(doAfter){
+  if (actionLock) return;
+  actionLock = true;
 
-    // pokaż odpowiedź dla AKTUALNIE wyświetlanego zdjęcia (zanim je zmienimy)
-    const shown = showAnswerForCurrentImage();
+  // pokaż odpowiedź dla AKTUALNEGO zdjęcia
+  showAnswerForCurrentImage();
 
-    // nawet jeśli brak tekstu, robimy krótką przerwę, żeby flow było stałe
-    await wait(ANSWER_MS);
-    paused = false;
+  // pauza zegara na czas wyświetlania odpowiedzi
+  paused = true;
+  console.log("paused ON");
 
-    hideAnswer();
-    doAfter();
+  await wait(ANSWER_MS);
+  paused = false;
 
-    actionLock = false;
-  }
+  hideAnswer();
+  doAfter();
+
+  actionLock = false;
+}
 
   // ====== NAMES ======
   function getNameA(){ return (nameAInput.value || "").trim() || "Player A"; }
