@@ -562,7 +562,7 @@ function playBuzzer(){
   const gain = audioCtx.createGain();
 
   osc.type = "triangle";                 // łagodny, ale nadal "buzzer"
-  osc.frequency.setValueAtTime(140, now); // stała częstotliwość
+  osc.frequency.setValueAtTime(70, now); // stała częstotliwość
 
   gain.gain.setValueAtTime(0.0001, now);
   gain.gain.linearRampToValueAtTime(0.20, now + 0.02);    // szybki atak
