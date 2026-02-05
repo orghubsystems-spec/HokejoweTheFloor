@@ -562,7 +562,7 @@ function playBuzzer(){
   const gain = audioCtx.createGain();
 
   osc.type = "square";                 // klasyczny dzwonek
-  osc.frequency.setValueAtTime(420, now); // ton „domowy”, nie stadion
+  osc.frequency.setValueAtTime(250, now); // ton „domowy”, nie stadion
 
   gain.gain.setValueAtTime(0.0001, now);
   gain.gain.linearRampToValueAtTime(0.22, now + 0.02);
