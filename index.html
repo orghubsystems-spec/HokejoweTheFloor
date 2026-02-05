@@ -568,17 +568,10 @@ function playBuzzer(){
   gain.gain.linearRampToValueAtTime(0.22, now + 0.02);
 
   // pulsowanie jak w starych dzwonkach
-  gain.gain.setValueAtTime(0.22, now + 0.10);
-  gain.gain.setValueAtTime(0.08, now + 0.18);
-  gain.gain.setValueAtTime(0.22, now + 0.26);
-  gain.gain.setValueAtTime(0.08, now + 0.34);
-  gain.gain.setValueAtTime(0.22, now + 0.42);
-  gain.gain.setValueAtTime(0.08, now + 0.50);
-  gain.gain.setValueAtTime(0.22, now + 0.58);
-  gain.gain.setValueAtTime(0.08, now + 0.66);
-  gain.gain.setValueAtTime(0.22, now + 0.74);
-
-  gain.gain.linearRampToValueAtTime(0.0001, now + 1.0);
+gain.gain.setValueAtTime(0.0001, now);
+gain.gain.linearRampToValueAtTime(0.22, now + 0.02);
+gain.gain.setValueAtTime(0.22, now + 0.98);
+gain.gain.linearRampToValueAtTime(0.0001, now + 1.0);
 
   osc.connect(gain);
   gain.connect(audioCtx.destination);
