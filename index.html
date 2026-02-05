@@ -357,7 +357,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS Tik</div>
+<div id="branding">ORG HUB SYSTEMS StartTik</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -659,9 +659,51 @@ function nextImageFor(){
   currentAnswer = (typeof item === "string") ? "" : (item.answer || "");
 }
 
-  function stopTick(){
-    if (tick) { clearInterval(tick); tick = null; }
+  // ====== TIMER (ODLICZANIE) + DŹWIĘK "CYK" ======
+let tick = null;              // interval odliczania czasu
+let tickSoundInterval = null; // interval dźwięku
+
+function playTick(){
+  beep(900, 35); // krótkie "cyk"
+}
+
+function stopTick(){
+  // stop odliczania
+  if (tick){
+    clearInterval(tick);
+    tick = null;
   }
+  // stop dźwięku
+  if (tickSoundInterval){
+    clearInterval(tickSoundInterval);
+    tickSoundInterval = null;
+  }
+}
+
+function startTick(){
+  // żeby nie dublować interwałów
+  stopTick();
+
+  // start dźwięku "cyk" (tylko gdy gra leci)
+  playTick();
+  tickSoundInterval = setInterval(() => {
+    if (running) playTick();
+  }, 1000);
+
+  // start odliczania czasu
+  tick = setInterval(() => {
+    if (!running) return;
+
+    if (active === "A") {
+      timeA = Math.max(0, timeA - 1);
+      if (timeA === 0) { announceWinner("B"); return; }
+    } else {
+      timeB = Math.max(0, timeB - 1);
+      if (timeB === 0) { announceWinner("A"); return; }
+    }
+    renderTimers();
+  }, 1000);
+}
 
   function announceWinner(winner){
     running = false;
@@ -681,21 +723,6 @@ function nextImageFor(){
     );
   }
 
-  function startTick(){
-    if (tick) return;
-    tick = setInterval(() => {
-      if (!running) return;
-
-      if (active === "A") {
-        timeA = Math.max(0, timeA - 1);
-        if (timeA === 0) { announceWinner("B"); return; }
-      } else {
-        timeB = Math.max(0, timeB - 1);
-        if (timeB === 0) { announceWinner("A"); return; }
-      }
-      renderTimers();
-    }, 1000);
-  }
   function correct(){ // P
     if (!$round.classList.contains("active")) return;
     if (!running) return;
@@ -958,24 +985,6 @@ if (localMode) {
     startTick();
     renderTimers();
   }
-  let tickInterval = null;
-
-function playTick(){
-  beep(900, 35); // krótkie "cyk"
-}
-
-function startTick(){
-  stopTick();
-  playTick(); // od razu pierwszy cyk
-  tickInterval = setInterval(playTick, 1000);
-}
-
-function stopTick(){
-  if (tickInterval){
-    clearInterval(tickInterval);
-    tickInterval = null;
-  }
-}
 
   // ====== KEYBOARD ======
   window.addEventListener("keydown", (e) => {
