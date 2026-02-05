@@ -357,7 +357,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS sort.OK</div>
+<div id="branding">ORG HUB SYSTEMS Tik</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -958,6 +958,24 @@ if (localMode) {
     startTick();
     renderTimers();
   }
+  let tickInterval = null;
+
+function playTick(){
+  beep(900, 35); // krótkie "cyk"
+}
+
+function startTick(){
+  stopTick();
+  playTick(); // od razu pierwszy cyk
+  tickInterval = setInterval(playTick, 1000);
+}
+
+function stopTick(){
+  if (tickInterval){
+    clearInterval(tickInterval);
+    tickInterval = null;
+  }
+}
 
   // ====== KEYBOARD ======
   window.addEventListener("keydown", (e) => {
