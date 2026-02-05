@@ -357,7 +357,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS StartTik</div>
+<div id="branding">ORG HUB SYSTEMS DinkBuzzer</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -519,6 +519,50 @@ function beep(freq = 800, duration = 120){
 
   osc.start();
   osc.stop(audioCtx.currentTime + duration / 1000);
+}
+
+  function playDink(){ 
+  // wysoki, krótki "dink"
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(1600, audioCtx.currentTime);
+
+  gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.25, audioCtx.currentTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.16);
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.18);
+}
+
+function playBuzzer(){
+  // długi, niski "YYYYY" (buzzer)
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = "sawtooth";
+  // lekki zjazd częstotliwości daje efekt "yyyyy"
+  osc.frequency.setValueAtTime(260, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(140, audioCtx.currentTime + 0.45);
+
+  gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.22, audioCtx.currentTime + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.50);
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.52);
 }
 
   function fmt(s){
@@ -727,6 +771,7 @@ function startTick(){
     if (!$round.classList.contains("active")) return;
     if (!running) return;
     if (actionLock) return;
+    playDink();
     showCorrect();
     revealAnswerThen(() => {
       active = (active === "A") ? "B" : "A";
@@ -740,6 +785,7 @@ async function pass(){ // Q
   if (!$round.classList.contains("active")) return;
   if (!running) return;
   if (actionLock) return;
+  playBuzzer();
 
   actionLock = true;
 
