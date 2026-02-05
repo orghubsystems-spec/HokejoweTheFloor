@@ -777,6 +777,7 @@ function startTick(){
 
   function announceWinner(winner){
     running = false;
+    paused = false;
     stopTick();
     const winnerName = (winner === "A") ? getNameA() : getNameB();
     winnerNameEl.textContent = winnerName;
@@ -829,14 +830,16 @@ async function pass(){ // Q
   actionLock = false;
 }
 
-  function resetRound(){
-    running = false;
-    stopTick();
-    timeA = ROUND_SECONDS;
-    timeB = ROUND_SECONDS;
-    active = "A";
-    renderTimers();
-  }
+function resetRound(){
+  running = false;
+  paused = false;
+  stopTick();
+  timeA = ROUND_SECONDS;
+  timeB = ROUND_SECONDS;
+  active = "A";
+  renderTimers();
+}
+
     // ====== FULLSCREEN ======
   function isFullscreen(){
     return !!document.fullscreenElement;
