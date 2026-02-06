@@ -262,17 +262,25 @@ body{
   opacity:.9;
 }
 .loadBtn:hover{ opacity:1; }
-/* ====== HIDE OPERATOR BUTTONS IN FULLSCREEN ====== */
-#viewport:fullscreen #fsBtn,
-#viewport:fullscreen #loadBtn,
+    
+/* ====== HIDE OPERATOR BUTTONS IN FULLSCREEN (robust) ====== */
+:fullscreen #fsBtn,
+:fullscreen #loadBtn,
+:fullscreen #sCatBtn,
+:fullscreen #sOkBtn,
+:fullscreen #sPassBtn{
   display:none !important;
 }
 
-/* Safari/Starsze WebKit */
-#viewport:-webkit-full-screen #fsBtn,
-#viewport:-webkit-full-screen #loadBtn,
+/* Safari / WebKit */
+:-webkit-full-screen #fsBtn,
+:-webkit-full-screen #loadBtn,
+:-webkit-full-screen #sCatBtn,
+:-webkit-full-screen #sOkBtn,
+:-webkit-full-screen #sPassBtn{
   display:none !important;
 }
+
 
     /* ====== PHOTO FEEDBACK ====== */
 .photoWrap{
