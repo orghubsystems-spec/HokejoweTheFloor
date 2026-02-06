@@ -1016,7 +1016,7 @@ if (localMode) {
     for (let i = 0; i < 9; i++){
       const tile = document.createElement("div");
       tile.className = "tile";
-      tile.classList.toggle("loaded", !!loadedSlots[i]);
+      tile.classList.toggle("loaded", !!(loadedSlots && loadedSlots[i]));
       tile.onclick = () => { playSfx("category"); selectCategory(i); };
 
       const inp = document.createElement("input");
