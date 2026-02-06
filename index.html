@@ -759,24 +759,38 @@ else localCats.push(newCat);
   
   renderMenu();
 });
+  
 clearBtn.addEventListener("click", () => {
-  // 1) czyść zdjęcia z pamięci przeglądarki
+  console.log("CLEAR CLICK"); // <- test: ma się pojawić w konsoli
+
+  // stop gry
+  running = false;
+  paused = false;
+  stopTick();
+
+  // wyczyść UI rundy
+  hideAnswer();
+  clearPhotoFeedback();
+  photo.src = "";
+
+  // wyczyść zdjęcia z pamięci przeglądarki
   cleanupLocalUrls();
 
-  // 2) wyzeruj lokalne kategorie
+  // wyzeruj dane lokalnych kategorii
   localCats = [];
   localMode = false;
 
-  // 3) wyzeruj "użyte kategorie" w tej sesji
+  // wyzeruj czerwone kafelki (sesja)
   usedSlots = Array(9).fill(false);
 
-  // 4) pozwól wybrać ten sam folder ponownie
+  // pozwól ponownie wybrać ten sam folder
   folderInput.value = "";
 
-  // 5) odśwież menu
+  // wróć do menu i odmaluj kafelki
   show($menu);
   renderMenu();
 });
+
   
 function nextImageFor(){
   if (!deck.length) return;
