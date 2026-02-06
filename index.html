@@ -91,6 +91,13 @@ body{
       display:flex;
       align-items:center;
     }
+    /* ====== LOADED CATEGORY TILE ====== */
+.tile.loaded{
+  border-color: rgba(0, 220, 0, 0.55) !important;
+  box-shadow: 0 0 0 2px rgba(0, 220, 0, 0.25) inset, 0 0 22px rgba(0, 220, 0, 0.18);
+  background: linear-gradient(180deg, rgba(0,220,0,0.16), rgba(255,255,255,0.08));
+}
+
     .tile:hover{ transform: translateY(-2px); border-color:#ffffff30; background: linear-gradient(180deg, #ffffff18, #ffffff0c); }
     .tile input{
       width:100%;
@@ -357,7 +364,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS SOUND</div>
+<div id="branding">ORG HUB SYSTEMS COLOUR</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -474,6 +481,7 @@ body{
   const LS_A = "floor_name_a";
   const LS_B = "floor_name_b";
   const LS_CAT = "floor_cat_labels"; // JSON array 9 elementów
+  const LS_LOADED = "floor_loaded_slots"; // JSON array 9 boolean
 
   // ====== STATE: TIMERS ======
   let timeA = ROUND_SECONDS;
@@ -482,6 +490,7 @@ body{
   let running = false;
   let tick = null;
   let paused = false;
+  let loadedSlots = Array(9).fill(false);
 
   // ====== STATE: categories/images ======
   let categories = null;        // JSON z data/categories.json (źródło plików)
@@ -489,6 +498,7 @@ body{
   let catLabels = [];           // etykiety wyświetlane (edytowane przez operatora)
   let currentCatIndex = null;   // 0..8
   let startArmed = false;
+  let loadedSlots = Array(9).fill(false);
 
   // decks
   let deckA = [], deckB = [];
@@ -736,9 +746,16 @@ else localCats.push(newCat);
   catLabels = localCats.slice(0, 9).map(c => c.label);
   saveCatLabels();
 
+  // zaznacz jako "loaded" sloty 1..9 które mają realnie obrazy
+  loadedSlots = Array.from({length:9}, (_, i) => {
+  const cat = localCats[i];
+  return !!(cat && cat.images && cat.images.length);
+  });
+  saveLoadedSlots();
+  
   // pozwól załadować TEN SAM folder ponownie
   folderInput.value = "";
-
+  
   renderMenu();
 });
 
@@ -975,6 +992,18 @@ async function revealAnswerThen(doAfter){
   function saveCatLabels(){
     localStorage.setItem(LS_CAT, JSON.stringify(catLabels));
   }
+  function loadLoadedSlots(){
+  try{
+    const raw = localStorage.getItem(LS_LOADED);
+    const arr = raw ? JSON.parse(raw) : null;
+    if (Array.isArray(arr) && arr.length === 9) return arr.map(Boolean);
+  }catch(e){}
+  return Array(9).fill(false);
+}
+
+function saveLoadedSlots(){
+  localStorage.setItem(LS_LOADED, JSON.stringify(loadedSlots));
+}
 
   function renderMenu(){
     // Jeśli operator wczytał folder — kafelki oparte o localCats
@@ -986,6 +1015,7 @@ if (localMode) {
     for (let i = 0; i < 9; i++){
       const tile = document.createElement("div");
       tile.className = "tile";
+      tile.classList.toggle("loaded", !!loadedSlots[i]);
       tile.onclick = () => { playSfx("category"); selectCategory(i); };
 
       const inp = document.createElement("input");
