@@ -986,7 +986,7 @@ if (localMode) {
     for (let i = 0; i < 9; i++){
       const tile = document.createElement("div");
       tile.className = "tile";
-      tile.onclick = () => selectCategory(i);
+      tile.onclick = () => { playSfx("category"); selectCategory(i); };
 
       const inp = document.createElement("input");
       inp.value = catLabels[i] || "";
@@ -1095,9 +1095,13 @@ if (localMode) {
       if (k === "f") { toggleFullscreen(); return; }
 
     // MENU: 1..9 wybór
-    if ($menu.classList.contains("active")) {
-      if (k >= "1" && k <= "9") { selectCategory(parseInt(k,10) - 1); return; }
-    }
+if ($menu.classList.contains("active")) {
+  if (k >= "1" && k <= "9") {
+    playSfx("category");
+    selectCategory(parseInt(k,10) - 1);
+    return;
+  }
+}
 
     // READY: Enter start
     if ($ready.classList.contains("active")) {
