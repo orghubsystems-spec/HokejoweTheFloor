@@ -499,6 +499,7 @@ body{
   let catLabels = [];           // etykiety wyświetlane (edytowane przez operatora)
   let usedSlots = Array(9).fill(false);
   let currentCatIndex = null;   // 0..8
+  let pendingCatIndex = null;
   let startArmed = false;
 
   // decks
@@ -1075,6 +1076,7 @@ if (localMode) {
 if (localMode) {
   saveNames();
   currentCatIndex = i;
+  pendingCatIndex = i;
 
   const cat = localCats[i];
   if (!cat) return;
@@ -1111,7 +1113,12 @@ if (localMode) {
 
     if (!startArmed) return;
     startArmed = false;
-
+    
+    if (pendingCatIndex !== null) {
+    usedSlots[pendingCatIndex] = true;
+    pendingCatIndex = null;
+  }
+  
     show($countdown);
     const steps = ["3","2","1","START"];
     for (const s of steps){
