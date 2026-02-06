@@ -490,12 +490,13 @@ body{
   let running = false;
   let tick = null;
   let paused = false;
-  let loadedSlots = Array(9).fill(false);
+
 
   // ====== STATE: categories/images ======
   let categories = null;        // JSON z data/categories.json (źródło plików)
   let categoryKeys = [];        // klucze z categories.json (pierwsze 9)
   let catLabels = [];           // etykiety wyświetlane (edytowane przez operatora)
+  let loadedSlots = Array(9).fill(false);
   let currentCatIndex = null;   // 0..8
   let startArmed = false;
   let loadedSlots = Array(9).fill(false);
