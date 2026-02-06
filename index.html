@@ -92,10 +92,11 @@ body{
       align-items:center;
     }
     /* ====== LOADED CATEGORY TILE ====== */
+/* ====== USED CATEGORY (this session) ====== */
 .tile.loaded{
-  border-color: rgba(0, 220, 0, 0.55) !important;
-  box-shadow: 0 0 0 2px rgba(0, 220, 0, 0.25) inset, 0 0 22px rgba(0, 220, 0, 0.18);
-  background: linear-gradient(180deg, rgba(0,220,0,0.16), rgba(255,255,255,0.08));
+  border-color: rgba(220, 0, 0, 0.65) !important;
+  box-shadow: 0 0 0 2px rgba(220, 0, 0, 0.25) inset, 0 0 22px rgba(220, 0, 0, 0.25);
+  background: linear-gradient(180deg, rgba(220,0,0,0.18), rgba(255,255,255,0.08));
 }
 
     .tile:hover{ transform: translateY(-2px); border-color:#ffffff30; background: linear-gradient(180deg, #ffffff18, #ffffff0c); }
@@ -364,7 +365,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS COLOUR</div>
+<div id="branding">ORG HUB SYSTEMS COLOUR RED</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -496,7 +497,7 @@ body{
   let categories = null;        // JSON z data/categories.json (źródło plików)
   let categoryKeys = [];        // klucze z categories.json (pierwsze 9)
   let catLabels = [];           // etykiety wyświetlane (edytowane przez operatora)
-  let loadedSlots = Array(9).fill(false);
+  let usedSlots = Array(9).fill(false);
   let currentCatIndex = null;   // 0..8
   let startArmed = false;
 
@@ -759,6 +760,20 @@ else localCats.push(newCat);
   renderMenu();
 });
 
+clearBtn.addEventListener("click", () => {
+  // czyścimy zdjęcia
+  cleanupLocalUrls();
+  localCats = [];
+  localMode = false;
+
+  // reset informacji o użytych kategoriach (SESJA)
+  usedSlots = Array(9).fill(false);
+
+  // NIE resetujemy nazw kategorii
+  renderMenu();
+  show($menu);
+});
+  
 function nextImageFor(){
   if (!deck.length) return;
   if (idx >= deck.length) idx = 0;
@@ -1015,7 +1030,7 @@ if (localMode) {
     for (let i = 0; i < 9; i++){
       const tile = document.createElement("div");
       tile.className = "tile";
-      tile.classList.toggle("loaded", !!(loadedSlots && loadedSlots[i]));
+      tile.classList.toggle("loaded", !!usedSlots[i]);
       tile.onclick = () => { playSfx("category"); selectCategory(i); };
 
       const inp = document.createElement("input");
@@ -1072,6 +1087,7 @@ if (localMode) {
   startArmed = true;
 
   readyTitle.textContent = (catLabels[i] || cat.label || "").trim() || `Kategoria ${i+1}`;
+  usedSlots[i] = true;
   show($ready);
   return;
 }
