@@ -468,8 +468,7 @@ body{
   const folderInput = document.getElementById("folderInput");
   const nameA_live = document.getElementById("nameA_live");
   const nameB_live = document.getElementById("nameB_live");
-
-
+  const clearBtn = document.getElementById("clearBtn");
 
   // ====== CONFIG ======
   const ROUND_SECONDS = 60;
@@ -760,19 +759,23 @@ else localCats.push(newCat);
   
   renderMenu();
 });
-
 clearBtn.addEventListener("click", () => {
-  // czyścimy zdjęcia
+  // 1) czyść zdjęcia z pamięci przeglądarki
   cleanupLocalUrls();
+
+  // 2) wyzeruj lokalne kategorie
   localCats = [];
   localMode = false;
 
-  // reset informacji o użytych kategoriach (SESJA)
+  // 3) wyzeruj "użyte kategorie" w tej sesji
   usedSlots = Array(9).fill(false);
 
-  // NIE resetujemy nazw kategorii
-  renderMenu();
+  // 4) pozwól wybrać ten sam folder ponownie
+  folderInput.value = "";
+
+  // 5) odśwież menu
   show($menu);
+  renderMenu();
 });
   
 function nextImageFor(){
@@ -1072,7 +1075,7 @@ if (localMode) {
   }
 
   async function selectCategory(i){
-    // ===== local mode =====
+   usedSlots[i] = true;
 if (localMode) {
   saveNames();
   currentCatIndex = i;
