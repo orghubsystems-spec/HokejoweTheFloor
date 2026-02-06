@@ -371,7 +371,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS COLOUR RED</div>
+<div id="branding">ORG HUB SYSTEMS</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -517,9 +517,10 @@ body{
   
   // ====== SFX from repo (GitHub Pages) ======
 const SFX = {
-  category: new Audio("assets/sfx/category.mp3"),
-  correct:  new Audio("assets/sfx/correct.mp3"),
-  pass:     new Audio("assets/sfx/pass.mp3"),
+  category: new Audio("sfx/category.mp3"),
+  correct:  new Audio("sfx/correct.mp3"),
+  pass:     new Audio("sfx/pass.mp3"),
+  winner:   new Audio("sfx/winner.mp3")
 };
 
 // preload
@@ -821,6 +822,7 @@ function startTick(){
 }
 
   function announceWinner(winner){
+    playSfx("winner");
     running = false;
     paused = false;
     stopTick();
