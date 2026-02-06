@@ -357,7 +357,7 @@ body{
 <body>
   
 <div id="viewport">
-<div id="branding">ORG HUB SYSTEMS Dinkdoor</div>
+<div id="branding">ORG HUB SYSTEMS SOUND</div>
   <button id="fsBtn" title="Full screen">⛶</button>
 
   <!-- MENU (operator setup) -->
@@ -499,6 +499,29 @@ body{
   let currentAnswer = "";
 
   let audioCtx = null;
+  
+  // ====== SFX from repo (GitHub Pages) ======
+const SFX = {
+  category: new Audio("assets/sfx/category.mp3"),
+  correct:  new Audio("assets/sfx/correct.mp3"),
+  pass:     new Audio("assets/sfx/pass.mp3"),
+};
+
+// preload
+Object.values(SFX).forEach(a => {
+  a.preload = "auto";
+  a.volume = 1.0;
+});
+
+function playSfx(name){
+  const base = SFX[name];
+  if (!base) return;
+  try{
+    const a = base.cloneNode(true); // pozwala nakładać dźwięki
+    a.currentTime = 0;
+    a.play();
+  }catch(e){}
+}
 
 function beep(freq = 800, duration = 120){
   if (!audioCtx) {
@@ -799,7 +822,7 @@ function startTick(){
     if (!running) return;
     if (actionLock) return;
    console.log("P pressed, paused before:", paused);
-     playDink();
+     playSfx("correct");
     showCorrect();
     revealAnswerThen(() => {
       active = (active === "A") ? "B" : "A";
@@ -813,7 +836,7 @@ async function pass(){ // Q
   if (!$round.classList.contains("active")) return;
   if (!running) return;
   if (actionLock) return;
-  playBuzzer();
+  playSfx("pass");
 
   actionLock = true;
 
