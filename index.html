@@ -265,14 +265,12 @@ body{
 /* ====== HIDE OPERATOR BUTTONS IN FULLSCREEN ====== */
 #viewport:fullscreen #fsBtn,
 #viewport:fullscreen #loadBtn,
-#viewport:fullscreen #clearBtn{
   display:none !important;
 }
 
 /* Safari/Starsze WebKit */
 #viewport:-webkit-full-screen #fsBtn,
 #viewport:-webkit-full-screen #loadBtn,
-#viewport:-webkit-full-screen #clearBtn{
   display:none !important;
 }
 
@@ -383,7 +381,6 @@ body{
       <div id="grid" class="grid"></div>
       <div style="display:flex; gap:12px; margin:12px 0;">
   <button id="loadBtn" class="loadBtn">📁 Wczytaj folder</button>
-  <button id="clearBtn" class="loadBtn">🧹 Wyczyść</button>
   <input id="folderInput" type="file" webkitdirectory directory multiple accept="image/*" style="display:none" />
 </div>
     </div>
@@ -468,7 +465,6 @@ body{
   const folderInput = document.getElementById("folderInput");
   const nameA_live = document.getElementById("nameA_live");
   const nameB_live = document.getElementById("nameB_live");
-  const clearBtn = document.getElementById("clearBtn");
 
   // ====== CONFIG ======
   const ROUND_SECONDS = 60;
@@ -760,38 +756,6 @@ else localCats.push(newCat);
   renderMenu();
 });
   
-clearBtn.addEventListener("click", () => {
-  console.log("CLEAR CLICK"); // <- test: ma się pojawić w konsoli
-
-  // stop gry
-  running = false;
-  paused = false;
-  stopTick();
-
-  // wyczyść UI rundy
-  hideAnswer();
-  clearPhotoFeedback();
-  photo.src = "";
-
-  // wyczyść zdjęcia z pamięci przeglądarki
-  cleanupLocalUrls();
-
-  // wyzeruj dane lokalnych kategorii
-  localCats = [];
-  localMode = false;
-
-  // wyzeruj czerwone kafelki (sesja)
-  usedSlots = Array(9).fill(false);
-
-  // pozwól ponownie wybrać ten sam folder
-  folderInput.value = "";
-
-  // wróć do menu i odmaluj kafelki
-  show($menu);
-  renderMenu();
-});
-
-  
 function nextImageFor(){
   if (!deck.length) return;
   if (idx >= deck.length) idx = 0;
@@ -1049,7 +1013,11 @@ if (localMode) {
       const tile = document.createElement("div");
       tile.className = "tile";
       tile.classList.toggle("loaded", !!usedSlots[i]);
-      tile.onclick = () => { playSfx("category"); selectCategory(i); };
+     tile.onclick = () => {
+    if (usedSlots[i]) return;          // zablokuj użyte
+    playSfx("category");
+    selectCategory(i);
+  };
 
       const inp = document.createElement("input");
       inp.value = catLabels[i] || "";
@@ -1165,12 +1133,12 @@ if (localMode) {
       if (k === "f") { toggleFullscreen(); return; }
 
     // MENU: 1..9 wybór
-if ($menu.classList.contains("active")) {
-  if (k >= "1" && k <= "9") {
-    playSfx("category");
-    selectCategory(parseInt(k,10) - 1);
-    return;
-  }
+if (k >= "1" && k <= "9") {
+  const idx = parseInt(k,10) - 1;
+  if (usedSlots[idx]) return;        // zablokuj użyte
+  playSfx("category");
+  selectCategory(idx);
+  return;
 }
 
     // READY: Enter start
